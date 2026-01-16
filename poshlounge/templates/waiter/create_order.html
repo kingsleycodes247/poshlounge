@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Order - Posh Lounge{% endblock %}
+{% block page_subtitle %}New Order{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Back button -->
+        <div class="mb-6">
+            <a href="{% url 'core:waiter_tables' %}" class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Back to Tables
+            </a>
+        </div>
+
+        <!-- Order Creation Card -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-8">
+                <div class="text-center">
+                    <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white bg-opacity-20">
+                        <i data-lucide="utensils" class="h-8 w-8 text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-white">Create New Order</h1>
+                    <p class="mt-2 text-indigo-100">Table {{ table.number }}</p>
+                </div>
+            </div>
+
+            <div class="p-8">
+                <!-- Table Information -->
+                <div class="mb-8 grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4">
+                    <div>
+                        <p class="text-sm text-gray-500">Table Number</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ table.number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Capacity</p>
+                        <p class="text-2xl font-bold text-gray-900">
+                            <i data-lucide="users" class="h-6 w-6 inline"></i>
+                            {{ table.capacity }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Confirmation Message -->
+                <div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="info" class="h-5 w-5 text-blue-600 mt-0.5"></i>
+                        <div>
+                            <h3 class="text-sm font-medium text-blue-900">Ready to create order?</h3>
+                            <p class="mt-1 text-sm text-blue-700">
+                                A new order will be created for Table {{ table.number }}. You'll then be able to add items to the order.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="flex gap-3">
+                        <a href="{% url 'core:waiter_tables' %}" 
+                           class="flex-1 inline-flex justify-center items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="flex-1 inline-flex justify-center items-center gap-2 rounded-md bg-indigo-600 px-4 py-3 text-sm font-medium text-white hover:bg-indigo-700 shadow-md">
+                            <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                            Create Order
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Tips Card -->
+        <div class="mt-6 rounded-lg bg-gray-50 border border-gray-200 p-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">💡 Quick Tips</h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• After creating the order, you can add menu items</li>
+                <li>• The table will be marked as occupied</li>
+                <li>• You can modify the order until it's sent to the kitchen</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

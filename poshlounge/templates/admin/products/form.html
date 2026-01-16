@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if product %}Edit{% else %}Create{% endif %} Product - Posh Lounge{% endblock %}
+{% block page_subtitle %}Product Management{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <a href="{% url 'dashboard:product_list' %}" class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Back to Products
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">
+                {% if product %}Edit Product{% else %}Create New Product{% endif %}
+            </h1>
+            <p class="mt-1 text-sm text-gray-500">
+                {% if product %}Update product information and pricing{% else %}Add a new product to your menu{% endif %}
+            </p>
+        </div>
+
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Basic Information Card -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <i data-lucide="info" class="h-5 w-5"></i>
+                        Basic Information
+                    </h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <!-- Product Name -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Product Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" 
+                               name="{{ form.name.name }}" 
+                               id="{{ form.name.id_for_label }}"
+                               value="{{ form.name.value|default:'' }}"
+                               required
+                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg px-4 py-3"
+                               placeholder="e.g., Grilled Chicken, Coca Cola">
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Category and SKU Row -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Category -->
+                        <div>
+                            <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Category <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="{{ form.category.name }}" 
+                                        id="{{ form.category.id_for_label }}"
+                                        required
+                                        class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 pr-10">
+                                    <option value="">Select category...</option>
+                                    {% for value, label in form.category.field.choices %}
+                                    {% if value %}
+                                    <option value="{{ value }}" {% if form.category.value == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                                    {% endif %}
+                                    {% endfor %}
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                    <i data-lucide="chevron-down" class="h-5 w-5 text-gray-400"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SKU -->
+                        <div>
+                            <label for="{{ form.sku.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                SKU (Stock Keeping Unit) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.sku.name }}" 
+                                   id="{{ form.sku.id_for_label }}"
+                                   value="{{ form.sku.value|default:'' }}"
+                                   required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3 font-mono"
+                                   placeholder="e.g., FOOD-001">
+                            <p class="mt-1 text-xs text-gray-500">Unique identifier for this product</p>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description
+                        </label>
+                        <textarea name="{{ form.description.name }}" 
+                                  id="{{ form.description.id_for_label }}"
+                                  rows="3"
+                                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 px-4 py-3"
+                                  placeholder="Brief description of the product...">{{ form.description.value|default:'' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Card -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4">
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <i data-lucide="dollar-sign" class="h-5 w-5"></i>
+                        Pricing
+                    </h2>
+                </div>
+                <div class="p-6">
+                    <div>
+                        <label for="{{ form.current_price.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                            Price (FCFA) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <span class="text-gray-500 text-lg">FCFA</span>
+                            </div>
+                            <input type="number" 
+                                   name="{{ form.current_price.name }}" 
+                                   id="{{ form.current_price.id_for_label }}"
+                                   value="{{ form.current_price.value|default:'' }}"
+                                   required
+                                   min="0"
+                                   step="1"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500 pl-20 pr-4 py-4 text-2xl font-bold"
+                                   placeholder="0">
+                        </div>
+                        <p class="mt-2 text-sm text-gray-500">This is the selling price customers will pay</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Card -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-cyan-600 px-6 py-4">
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <i data-lucide="package" class="h-5 w-5"></i>
+                        Inventory Management
+                    </h2>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Stock Quantity -->
+                        <div>
+                            <label for="{{ form.stock_quantity.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Current Stock <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" 
+                                   name="{{ form.stock_quantity.name }}" 
+                                   id="{{ form.stock_quantity.id_for_label }}"
+                                   value="{{ form.stock_quantity.value|default:'0' }}"
+                                   required
+                                   min="0"
+                                   step="0.01"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3 text-lg text-center font-semibold">
+                        </div>
+
+                        <!-- Min Stock Level -->
+                        <div>
+                            <label for="{{ form.min_stock_level.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Min Stock Level <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" 
+                                   name="{{ form.min_stock_level.name }}" 
+                                   id="{{ form.min_stock_level.id_for_label }}"
+                                   value="{{ form.min_stock_level.value|default:'10' }}"
+                                   required
+                                   min="0"
+                                   step="0.01"
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3 text-lg text-center font-semibold">
+                            <p class="mt-1 text-xs text-gray-500">Alert threshold</p>
+                        </div>
+
+                        <!-- Unit of Measure -->
+                        <div>
+                            <label for="{{ form.unit_of_measure.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                Unit <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="{{ form.unit_of_measure.name }}" 
+                                   id="{{ form.unit_of_measure.id_for_label }}"
+                                   value="{{ form.unit_of_measure.value|default:'unit' }}"
+                                   required
+                                   class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 px-4 py-3"
+                                   placeholder="unit, kg, liter">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+                    <h2 class="text-lg font-medium text-white flex items-center gap-2">
+                        <i data-lucide="settings" class="h-5 w-5"></i>
+                        Product Settings
+                    </h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- Checkboxes -->
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" 
+                               name="{{ form.is_available.name }}" 
+                               id="{{ form.is_available.id_for_label }}"
+                               {% if form.is_available.value %}checked{% endif %}
+                               class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="{{ form.is_available.id_for_label }}" class="flex-1 cursor-pointer">
+                            <span class="text-sm font-medium text-gray-900">Available for Sale</span>
+                            <p class="text-xs text-gray-500">Product can be added to orders</p>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <input type="checkbox" 
+                               name="{{ form.requires_kitchen.name }}" 
+                               id="{{ form.requires_kitchen.id_for_label }}"
+                               {% if form.requires_kitchen.value %}checked{% endif %}
+                               class="h-5 w-5 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                        <label for="{{ form.requires_kitchen.id_for_label }}" class="flex-1 cursor-pointer">
+                            <span class="text-sm font-medium text-gray-900">Requires Kitchen Preparation</span>
+                            <p class="text-xs text-gray-500">Send to kitchen display when ordered</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between gap-4 bg-white shadow-lg rounded-lg p-6">
+                <a href="{% url 'dashboard:product_list' %}" 
+                   class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i data-lucide="x" class="h-5 w-5"></i>
+                    Cancel
+                </a>
+                <button type="submit" 
+                        class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-8 py-3 text-sm font-medium text-white hover:bg-indigo-700 shadow-md">
+                    <i data-lucide="save" class="h-5 w-5"></i>
+                    {% if product %}Update Product{% else %}Create Product{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

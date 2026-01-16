@@ -1,0 +1,294 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Posh Lounge{% endblock %}
+{% block page_subtitle %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p class="mt-1 text-sm text-gray-500">Overview of your restaurant operations</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <!-- Today's Revenue -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="dollar-sign" class="h-8 w-8 text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Today's Revenue</dt>
+                                <dd class="flex items-baseline">
+                                    <div class="text-2xl font-semibold text-gray-900">
+                                        {{ today_revenue|floatformat:0 }}
+                                    </div>
+                                    <div class="ml-2 text-sm text-gray-500">FCFA</div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="{% url 'dashboard:sales_report' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            View details <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Orders -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="shopping-bag" class="h-8 w-8 text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Today's Orders</dt>
+                                <dd class="flex items-baseline">
+                                    <div class="text-2xl font-semibold text-gray-900">{{ today_orders }}</div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <div class="text-sm">
+                        <span class="text-gray-500">{{ active_orders }} currently active</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week Revenue -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="trending-up" class="h-8 w-8 text-purple-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">This Week</dt>
+                                <dd class="flex items-baseline">
+                                    <div class="text-2xl font-semibold text-gray-900">
+                                        {{ week_revenue|floatformat:0 }}
+                                    </div>
+                                    <div class="ml-2 text-sm text-gray-500">FCFA</div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <div class="text-sm text-gray-500">
+                        {{ week_orders }} orders this week
+                    </div>
+                </div>
+            </div>
+
+            <!-- Month Revenue -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="calendar" class="h-8 w-8 text-orange-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">This Month</dt>
+                                <dd class="flex items-baseline">
+                                    <div class="text-2xl font-semibold text-gray-900">
+                                        {{ month_revenue|floatformat:0 }}
+                                    </div>
+                                    <div class="ml-2 text-sm text-gray-500">FCFA</div>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-5 py-3">
+                    <div class="text-sm">
+                        <a href="{% url 'dashboard:reports_dashboard' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                            Full report <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <!-- Recent Payments -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-lg font-medium text-gray-900">Recent Payments</h2>
+                    <a href="{% url 'dashboard:sales_report' %}" class="text-sm text-indigo-600 hover:text-indigo-500">View all</a>
+                </div>
+                <div class="divide-y divide-gray-200">
+                    {% for payment in recent_payments %}
+                    <div class="px-6 py-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {{ payment.payment_number }}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    Order #{{ payment.order.order_number }} · {{ payment.processed_by.username }}
+                                </p>
+                            </div>
+                            <div class="text-right ml-4">
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ payment.amount|floatformat:0 }} FCFA
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    {{ payment.get_payment_method_display }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i data-lucide="inbox" class="mx-auto h-8 w-8 text-gray-400"></i>
+                        <p class="mt-2 text-sm">No payments yet today</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Low Stock Alerts -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-red-50">
+                    <h2 class="text-lg font-medium text-red-900">
+                        <i data-lucide="alert-triangle" class="h-5 w-5 inline"></i>
+                        Low Stock Alerts
+                    </h2>
+                    <a href="{% url 'dashboard:low_stock_alerts' %}" class="text-sm text-red-600 hover:text-red-500">View all</a>
+                </div>
+                <div class="divide-y divide-gray-200 max-h-96 overflow-y-auto">
+                    {% for product in low_stock_products %}
+                    <div class="px-6 py-4 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ product.name }}</p>
+                                <p class="text-xs text-gray-500">SKU: {{ product.sku }}</p>
+                            </div>
+                            <div class="text-right ml-4">
+                                <p class="text-sm font-semibold text-red-600">
+                                    {{ product.stock_quantity|floatformat:0 }} {{ product.unit_of_measure }}
+                                </p>
+                                <p class="text-xs text-gray-500">
+                                    Min: {{ product.min_stock_level|floatformat:0 }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="px-6 py-8 text-center text-gray-500">
+                        <i data-lucide="check-circle" class="mx-auto h-8 w-8 text-green-400"></i>
+                        <p class="mt-2 text-sm">All stock levels are good!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Products & Payment Breakdown -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Top Selling Products -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Top Selling (This Week)</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for item in top_products %}
+                        <div class="flex items-center">
+                            <div class="flex-1">
+                                <p class="text-sm font-medium text-gray-900">{{ item.product__name }}</p>
+                                <p class="text-xs text-gray-500">{{ item.quantity_sold|floatformat:0 }} sold</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ item.revenue|floatformat:0 }} FCFA
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 text-center py-4">No sales data available</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Methods Breakdown -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Payment Methods (Today)</h2>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        {% for method in payment_breakdown %}
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                                    <i data-lucide="{% if method.payment_method == 'cash' %}banknote{% else %}smartphone{% endif %}" class="h-5 w-5 text-indigo-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {% if method.payment_method == 'cash' %}Cash
+                                        {% elif method.payment_method == 'mobile_money' %}Mobile Money
+                                        {% else %}Orange Money{% endif %}
+                                    </p>
+                                    <p class="text-xs text-gray-500">{{ method.count }} transaction{{ method.count|pluralize }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ method.total|floatformat:0 }} FCFA
+                                </p>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-sm text-gray-500 text-center py-4">No payments today</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <a href="{% url 'dashboard:product_list' %}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+                <i data-lucide="package" class="mx-auto h-8 w-8 text-indigo-600"></i>
+                <p class="mt-2 text-sm font-medium text-gray-900">Products</p>
+            </a>
+            <a href="{% url 'dashboard:inventory_dashboard' %}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+                <i data-lucide="box" class="mx-auto h-8 w-8 text-green-600"></i>
+                <p class="mt-2 text-sm font-medium text-gray-900">Inventory</p>
+            </a>
+            <a href="{% url 'dashboard:user_list' %}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+                <i data-lucide="users" class="mx-auto h-8 w-8 text-purple-600"></i>
+                <p class="mt-2 text-sm font-medium text-gray-900">Users</p>
+            </a>
+            <a href="{% url 'dashboard:reports_dashboard' %}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+                <i data-lucide="bar-chart" class="mx-auto h-8 w-8 text-orange-600"></i>
+                <p class="mt-2 text-sm font-medium text-gray-900">Reports</p>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+
+{% block title %}Kitchen Display - Posh Lounge{% endblock %}
+{% block page_subtitle %}Kitchen Orders{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Full-screen kitchen display optimized for tablets */
+    body {
+        background: #1f2937 !important;
+    }
+    
+    .order-card {
+        transition: all 0.3s ease;
+    }
+    
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    
+    .new-order {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.7); }
+        50% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+    }
+    
+    /* Large touch-friendly buttons */
+    .confirm-btn {
+        min-height: 3rem;
+        font-size: 1.125rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header with stats -->
+        <div class="mb-6 bg-gray-800 rounded-lg p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-white flex items-center gap-3">
+                        <i data-lucide="chef-hat" class="h-10 w-10 text-yellow-400"></i>
+                        Kitchen Orders
+                    </h1>
+                    <p class="mt-2 text-gray-300">
+                        <span id="current-time-kitchen" class="text-lg font-mono"></span>
+                    </p>
+                </div>
+                
+                <div class="flex items-center gap-6">
+                    <!-- Pending count -->
+                    <div class="text-center bg-red-500 rounded-lg px-6 py-3">
+                        <p class="text-white text-4xl font-bold" id="pending-count">
+                            {{ kitchen_orders|length }}
+                        </p>
+                        <p class="text-red-100 text-sm">Pending</p>
+                    </div>
+                    
+                    <!-- Auto-refresh indicator -->
+                    <div class="bg-gray-700 rounded-lg px-4 py-3 flex items-center gap-3">
+                        <div class="h-3 w-3 rounded-full bg-green-400 animate-pulse"></div>
+                        <div class="text-white">
+                            <p class="text-sm">Auto-refresh</p>
+                            <p class="text-xs text-gray-300">Every 5 seconds</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Grid -->
+        {% if kitchen_orders %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="orders-container">
+            {% for order_data in kitchen_orders %}
+            {% with order=order_data.order items=order_data.items %}
+            <div class="order-card bg-white rounded-lg shadow-xl overflow-hidden" data-order-id="{{ order.id }}">
+                <!-- Order Header -->
+                <div class="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-xl font-bold text-white">
+                                #{{ order.order_number }}
+                            </h3>
+                            <p class="text-indigo-100 text-sm mt-1">
+                                {% if order.table %}
+                                    <i data-lucide="utensils" class="h-4 w-4 inline"></i>
+                                    Table {{ order.table.number }}
+                                {% else %}
+                                    <i data-lucide="package" class="h-4 w-4 inline"></i>
+                                    Takeout
+                                {% endif %}
+                                · {{ order.waiter.username }}
+                            </p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white text-sm">Time</p>
+                            <p class="text-white font-mono text-lg font-bold">
+                                {{ order.created_at|date:"H:i" }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Items -->
+                <div class="p-6 space-y-4">
+                    {% for item in items %}
+                    <div class="item-card border-l-4 border-indigo-500 pl-4 py-3 bg-gray-50 rounded-r">
+                        <div class="flex items-start justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex items-center justify-center h-10 w-10 rounded-full bg-indigo-600 text-white text-lg font-bold">
+                                        {{ item.quantity|floatformat:0 }}
+                                    </span>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-gray-900">
+                                            {{ item.product.name }}
+                                        </h4>
+                                        {% if item.special_instructions %}
+                                        <p class="mt-1 text-sm text-red-600 font-medium flex items-start gap-1">
+                                            <i data-lucide="alert-circle" class="h-4 w-4 mt-0.5"></i>
+                                            {{ item.special_instructions }}
+                                        </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button onclick="confirmItem('{{ item.id }}', this)" class="confirm-btn flex-shrink-0 ml-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 active:bg-green-800 shadow-md">
+                                <i data-lucide="check" class="h-5 w-5"></i>
+                                Done
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Order Footer -->
+                <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
+                    <p class="text-xs text-gray-500 flex items-center gap-1">
+                        <i data-lucide="clock" class="h-3 w-3"></i>
+                        Ordered {{ order.created_at|timesince }} ago
+                    </p>
+                </div>
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- No orders state -->
+        <div class="text-center py-20">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-green-100 mb-6">
+                <i data-lucide="check-circle" class="h-16 w-16 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-2">All Caught Up!</h3>
+            <p class="text-gray-400 text-lg">No pending orders at the moment</p>
+            <p class="text-gray-500 text-sm mt-2">New orders will appear automatically</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Success notification -->
+<div id="successNotification" class="hidden fixed top-20 right-4 bg-green-500 text-white px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 animate-fadeIn">
+    <i data-lucide="check-circle" class="h-6 w-6"></i>
+    <span class="font-medium">Item marked as ready!</span>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    
+    // Update kitchen time display
+    function updateKitchenClock() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false 
+        });
+        document.getElementById('current-time-kitchen').textContent = timeStr;
+    }
+    
+    updateKitchenClock();
+    setInterval(updateKitchenClock, 1000);
+    
+    // Auto-refresh every 5 seconds
+    let refreshTimer = setTimeout(() => {
+        location.reload();
+    }, 5000);
+    
+    // Confirm item completion
+    async function confirmItem(itemId, button) {
+        // Disable button
+        button.disabled = true;
+        button.innerHTML = '<i data-lucide="loader" class="h-5 w-5 animate-spin"></i> Processing...';
+        lucide.createIcons();
+        
+        try {
+            const response = await fetch(`/kitchen/confirm-item/${itemId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Show success notification
+                showNotification();
+                
+                // Remove the item card
+                const itemCard = button.closest('.item-card');
+                itemCard.style.transition = 'all 0.3s ease';
+                itemCard.style.opacity = '0';
+                itemCard.style.transform = 'translateX(100px)';
+                
+                setTimeout(() => {
+                    itemCard.remove();
+                    
+                    // Check if order has no more items
+                    const orderCard = button.closest('.order-card');
+                    const remainingItems = orderCard.querySelectorAll('.item-card');
+                    
+                    if (remainingItems.length === 0) {
+                        // Remove entire order card
+                        orderCard.style.opacity = '0';
+                        orderCard.style.transform = 'scale(0.9)';
+                        
+                        setTimeout(() => {
+                            orderCard.remove();
+                            updatePendingCount();
+                            
+                            // Reload if no orders left
+                            if (document.querySelectorAll('.order-card').length === 0) {
+                                setTimeout(() => location.reload(), 1000);
+                            }
+                        }, 300);
+                    }
+                }, 300);
+            } else {
+                throw new Error('Failed to confirm item');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            button.disabled = false;
+            button.innerHTML = '<i data-lucide="check" class="h-5 w-5"></i> Done';
+            lucide.createIcons();
+            alert('Failed to confirm item. Please try again.');
+        }
+    }
+    
+    function showNotification() {
+        const notification = document.getElementById('successNotification');
+        notification.classList.remove('hidden');
+        
+        setTimeout(() => {
+            notification.classList.add('hidden');
+        }, 3000);
+        
+        lucide.createIcons();
+    }
+    
+    function updatePendingCount() {
+        const count = document.querySelectorAll('.order-card').length;
+        document.getElementById('pending-count').textContent = count;
+    }
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Highlight new orders (those less than 30 seconds old)
+    document.addEventListener('DOMContentLoaded', () => {
+        const now = new Date();
+        document.querySelectorAll('.order-card').forEach(card => {
+            // In production, you'd check the actual timestamp
+            // For demo, randomly mark some as new
+            if (Math.random() > 0.7) {
+                card.classList.add('new-order');
+            }
+        });
+    });
+    
+    // Keep screen awake (for tablet displays)
+    if ('wakeLock' in navigator) {
+        let wakeLock = null;
+        
+        const requestWakeLock = async () => {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+            } catch (err) {
+                console.log('Wake Lock error:', err);
+            }
+        };
+        
+        requestWakeLock();
+        
+        document.addEventListener('visibilitychange', () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
+        });
+    }
+</script>
+{% endblock %}

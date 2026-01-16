@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}Start Shift - Posh Lounge{% endblock %}
+{% block page_subtitle %}Cashier Shift Management{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header Card -->
+        <div class="mb-6 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-8 text-white">
+            <div class="text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white bg-opacity-20">
+                    <i data-lucide="log-in" class="h-8 w-8 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold">Start Your Shift</h1>
+                <p class="mt-2 text-indigo-100">{{ user.username }} · {{ request.session.device_id|slice:":8" }}</p>
+            </div>
+        </div>
+
+        <!-- Start Shift Form -->
+        <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Opening Cash Count</h2>
+                <p class="mt-1 text-sm text-gray-500">Enter the amount of cash in the drawer at shift start</p>
+            </div>
+
+            <form method="POST" class="p-6">
+                {% csrf_token %}
+                
+                <!-- Opening Cash Input -->
+                <div class="mb-6">
+                    <label for="opening_cash" class="block text-sm font-medium text-gray-700 mb-2">
+                        Opening Cash Amount
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span class="text-gray-500 sm:text-sm">FCFA</span>
+                        </div>
+                        <input type="number" 
+                               name="opening_cash" 
+                               id="opening_cash" 
+                               required
+                               min="0"
+                               step="1"
+                               value="0"
+                               class="block w-full pl-16 pr-3 py-4 text-3xl font-bold border-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                               placeholder="0"
+                               autofocus>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">
+                        💡 Count all bills and coins in the cash drawer before starting
+                    </p>
+                </div>
+
+                <!-- Important Notice -->
+                <div class="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="h-5 w-5 text-yellow-600 mt-0.5"></i>
+                        <div>
+                            <h3 class="text-sm font-medium text-yellow-900">Important</h3>
+                            <ul class="mt-2 text-sm text-yellow-700 space-y-1">
+                                <li>• Count cash carefully before entering amount</li>
+                                <li>• This amount will be used for end-of-shift reconciliation</li>
+                                <li>• All transactions during your shift will be tracked</li>
+                                <li>• You cannot process payments until shift is started</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shift Information -->
+                <div class="mb-6 grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4">
+                    <div>
+                        <p class="text-xs text-gray-500">Shift Start Time</p>
+                        <p class="font-medium text-gray-900" id="current-time"></p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Device ID</p>
+                        <p class="font-medium text-gray-900 font-mono text-xs">{{ request.session.device_id|slice:":8" }}</p>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" 
+                        class="w-full inline-flex justify-center items-center gap-2 rounded-md bg-indigo-600 px-4 py-4 text-base font-medium text-white hover:bg-indigo-700 shadow-md">
+                    <i data-lucide="play-circle" class="h-6 w-6"></i>
+                    Start Shift
+                </button>
+            </form>
+        </div>
+
+        <!-- Help Card -->
+        <div class="mt-6 rounded-lg bg-blue-50 border border-blue-200 p-4">
+            <h3 class="text-sm font-medium text-blue-900 mb-2">
+                <i data-lucide="help-circle" class="h-4 w-4 inline"></i>
+                Need Help?
+            </h3>
+            <p class="text-sm text-blue-700">
+                If you're unsure about the opening cash amount, please contact your supervisor before starting your shift.
+            </p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    
+    // Update current time
+    function updateTime() {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('en-US', { 
+            hour: '2-digit', 
+            minute: '2-digit',
+            hour12: false 
+        });
+        const dateStr = now.toLocaleDateString('en-US', { 
+            weekday: 'short', 
+            month: 'short', 
+            day: 'numeric' 
+        });
+        document.getElementById('current-time').textContent = `${dateStr}, ${timeStr}`;
+    }
+    
+    updateTime();
+    setInterval(updateTime, 1000);
+    
+    // Format number input
+    const cashInput = document.getElementById('opening_cash');
+    cashInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+</script>
+{% endblock %}

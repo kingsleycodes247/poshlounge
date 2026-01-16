@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Products - Posh Lounge{% endblock %}
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Products</h1>
+                <p class="mt-1 text-sm text-gray-500">Manage menu items and pricing</p>
+            </div>
+            <a href="{% url 'dashboard:product_create' %}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                Add Product
+            </a>
+        </div>
+
+        <!-- Grid View -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="h-2 {% if product.is_low_stock %}bg-red-500{% else %}bg-green-500{% endif %}"></div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
+                            <p class="text-sm text-gray-500">{{ product.category.name }}</p>
+                        </div>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if product.is_available %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if product.is_available %}Available{% else %}Unavailable{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">SKU:</span>
+                            <span class="font-mono font-medium">{{ product.sku }}</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Price:</span>
+                            <span class="font-bold text-lg text-gray-900">{{ product.current_price|floatformat:0 }} FCFA</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Stock:</span>
+                            <span class="font-medium {% if product.is_low_stock %}text-red-600{% else %}text-green-600{% endif %}">
+                                {{ product.stock_quantity|floatformat:0 }} {{ product.unit_of_measure }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <a href="{% url 'dashboard:product_edit' product.pk %}" class="flex-1 inline-flex justify-center items-center gap-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="edit" class="h-4 w-4"></i>
+                            Edit
+                        </a>
+                        <a href="{% url 'dashboard:product_delete' product.pk %}" class="inline-flex items-center gap-1 rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>lucide.createIcons();</script>{% endblock %}

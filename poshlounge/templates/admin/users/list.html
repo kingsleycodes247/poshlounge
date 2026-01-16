@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Users - Posh Lounge{% endblock %}
+{% block page_subtitle %}User Management{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">System Users</h1>
+                <p class="mt-1 text-sm text-gray-500">Manage staff accounts and permissions</p>
+            </div>
+            <a href="{% url 'dashboard:user_create' %}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 shadow-md">
+                <i data-lucide="user-plus" class="h-5 w-5"></i>
+                Add New User
+            </a>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i data-lucide="shield" class="h-5 w-5 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Admins</p>
+                        <p class="text-xl font-bold">{{ users|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i data-lucide="clipboard-list" class="h-5 w-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Waiters</p>
+                        <p class="text-xl font-bold">{{ users|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <i data-lucide="credit-card" class="h-5 w-5 text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Cashiers</p>
+                        <p class="text-xl font-bold">{{ users|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-orange-100 flex items-center justify-center">
+                        <i data-lucide="chef-hat" class="h-5 w-5 text-orange-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Kitchen</p>
+                        <p class="text-xl font-bold">{{ users|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for user in users %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <!-- Header with role color -->
+                <div class="h-2 
+                    {% if user.role == 'admin' %}bg-purple-500
+                    {% elif user.role == 'waiter' %}bg-blue-500
+                    {% elif user.role == 'cashier' %}bg-green-500
+                    {% else %}bg-orange-500{% endif %}">
+                </div>
+                
+                <div class="p-6">
+                    <!-- User Avatar & Name -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="h-12 w-12 rounded-full 
+                                {% if user.role == 'admin' %}bg-purple-100
+                                {% elif user.role == 'waiter' %}bg-blue-100
+                                {% elif user.role == 'cashier' %}bg-green-100
+                                {% else %}bg-orange-100{% endif %}
+                                flex items-center justify-center">
+                                <i data-lucide="user" class="h-6 w-6 
+                                    {% if user.role == 'admin' %}text-purple-600
+                                    {% elif user.role == 'waiter' %}text-blue-600
+                                    {% elif user.role == 'cashier' %}text-green-600
+                                    {% else %}text-orange-600{% endif %}">
+                                </i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-900">{{ user.username }}</h3>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if user.role == 'admin' %}bg-purple-100 text-purple-800
+                                    {% elif user.role == 'waiter' %}bg-blue-100 text-blue-800
+                                    {% elif user.role == 'cashier' %}bg-green-100 text-green-800
+                                    {% else %}bg-orange-100 text-orange-800{% endif %}">
+                                    {{ user.get_role_display }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        {% if user.is_active %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i data-lucide="check-circle" class="h-3 w-3 mr-1"></i>
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <i data-lucide="x-circle" class="h-3 w-3 mr-1"></i>
+                            Inactive
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- User Details -->
+                    <div class="space-y-2 mb-4 text-sm">
+                        <div class="flex items-center gap-2 text-gray-600">
+                            <i data-lucide="key" class="h-4 w-4"></i>
+                            <span>PIN: {% if user.pin_code %}••••••{% else %}Not set{% endif %}</span>
+                        </div>
+                        <div class="flex items-center gap-2 text-gray-600">
+                            <i data-lucide="smartphone" class="h-4 w-4"></i>
+                            <span class="font-mono text-xs">
+                                {% if user.device_id %}{{ user.device_id|slice:":8" }}...{% else %}Not bound{% endif %}
+                            </span>
+                        </div>
+                        {% if user.is_active_shift %}
+                        <div class="flex items-center gap-2 text-green-600">
+                            <i data-lucide="clock" class="h-4 w-4"></i>
+                            <span class="font-medium">On Shift</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <a href="{% url 'dashboard:user_edit' user.pk %}" 
+                           class="flex-1 inline-flex justify-center items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="edit" class="h-4 w-4"></i>
+                            Edit
+                        </a>
+                        <button onclick="alert('Delete user feature coming soon')" 
+                                class="inline-flex items-center gap-2 rounded-md border border-red-300 bg-white px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-50">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 bg-white rounded-lg shadow p-12 text-center">
+                <i data-lucide="users" class="mx-auto h-16 w-16 text-gray-400"></i>
+                <h3 class="mt-4 text-lg font-medium text-gray-900">No users found</h3>
+                <p class="mt-2 text-sm text-gray-500">Get started by creating a new user account.</p>
+                <a href="{% url 'dashboard:user_create' %}" 
+                   class="mt-6 inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+                    <i data-lucide="user-plus" class="h-5 w-5"></i>
+                    Add First User
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

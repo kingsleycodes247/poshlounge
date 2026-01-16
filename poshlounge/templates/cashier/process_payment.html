@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+
+{% block title %}Process Payment - Posh Lounge{% endblock %}
+{% block page_subtitle %}Payment Processing{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Back button -->
+        <div class="mb-6">
+            <a href="{% url 'core:cashier_dashboard' %}" class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900">
+                <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Order Details -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-indigo-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white">Order Details</h2>
+                    <p class="text-indigo-100 text-sm">#{{ order.order_number }}</p>
+                </div>
+
+                <div class="p-6">
+                    <!-- Table & Waiter Info -->
+                    <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <p class="text-gray-500">Table</p>
+                                <p class="font-medium text-gray-900">
+                                    {% if order.table %}{{ order.table.number }}{% else %}Takeout{% endif %}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Waiter</p>
+                                <p class="font-medium text-gray-900">{{ order.waiter.username }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Time</p>
+                                <p class="font-medium text-gray-900">{{ order.created_at|date:"H:i" }}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Status</p>
+                                <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-green-100 text-green-800">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-3">Items</h3>
+                        <div class="space-y-2">
+                            {% for item in order.items.all %}
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <div class="flex-1">
+                                    <p class="font-medium text-gray-900">{{ item.product.name }}</p>
+                                    <p class="text-xs text-gray-500">{{ item.quantity|floatformat:0 }} x {{ item.unit_price|floatformat:0 }} FCFA</p>
+                                </div>
+                                <p class="font-semibold text-gray-900">{{ item.subtotal|floatformat:0 }} FCFA</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Subtotal</span>
+                                <span class="font-medium">{{ order.subtotal|floatformat:0 }} FCFA</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tax (0.0%)</span>
+                                <span class="font-medium">{{ order.tax_amount|floatformat:0 }} FCFA</span>
+                            </div>
+                            <div class="flex justify-between text-lg font-bold border-t border-gray-200 pt-2 mt-2">
+                                <span>Total</span>
+                                <span class="text-indigo-600">{{ order.total_amount|floatformat:0 }} FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Status -->
+                    {% if total_paid > 0 %}
+                    <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-yellow-800">Partially Paid</p>
+                                <p class="text-xs text-yellow-600">{{ total_paid|floatformat:0 }} FCFA paid</p>
+                            </div>
+                            <p class="text-lg font-bold text-yellow-900">
+                                {{ remaining|floatformat:0 }} FCFA remaining
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Payment Form -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="bg-green-600 px-6 py-4">
+                    <h2 class="text-xl font-bold text-white">Process Payment</h2>
+                    <p class="text-green-100 text-sm">Select payment method</p>
+                </div>
+
+                <form method="POST" class="p-6">
+                    {% csrf_token %}
+
+                    <!-- Payment Method Selection -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">Payment Method</label>
+                        <div class="grid grid-cols-1 gap-3">
+                            <!-- Cash -->
+                            <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-600 transition-colors">
+                                <input type="radio" name="payment_method" value="cash" required class="h-5 w-5 text-indigo-600 focus:ring-indigo-500" checked>
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="banknote" class="h-6 w-6 text-green-600"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Cash</p>
+                                            <p class="text-xs text-gray-500">Physical cash payment</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Mobile Money -->
+                            <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-600 transition-colors">
+                                <input type="radio" name="payment_method" value="mobile_money" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500">
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="smartphone" class="h-6 w-6 text-purple-600"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Mobile Money</p>
+                                            <p class="text-xs text-gray-500">MTN Mobile Money</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+
+                            <!-- Orange Money -->
+                            <label class="relative flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-600 transition-colors">
+                                <input type="radio" name="payment_method" value="orange_money" class="h-5 w-5 text-indigo-600 focus:ring-indigo-500">
+                                <div class="ml-4 flex-1">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="smartphone" class="h-6 w-6 text-orange-600"></i>
+                                        <div>
+                                            <p class="font-medium text-gray-900">Orange Money</p>
+                                            <p class="text-xs text-gray-500">Orange Mobile Money</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Reference (for mobile payments) -->
+                    <div class="mb-6 hidden" id="transaction-ref-field">
+                        <label for="transaction_reference" class="block text-sm font-medium text-gray-700 mb-2">
+                            Transaction Reference
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="hash" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="text" name="transaction_reference" id="transaction_reference"
+                                   class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter transaction ID">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Required for mobile money payments</p>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="mb-6">
+                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                            Amount to Pay
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">FCFA</span>
+                            </div>
+                            <input type="number" name="amount" id="amount" required
+                                   value="{{ remaining|floatformat:0 }}"
+                                   min="1"
+                                   max="{{ remaining|floatformat:0 }}"
+                                   class="block w-full pl-16 pr-3 py-3 text-2xl font-bold border-2 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="0">
+                        </div>
+                        <div class="mt-2 flex gap-2">
+                            <button type="button" onclick="setAmount({{ remaining|floatformat:0 }})" class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md font-medium">
+                                Full Amount
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex gap-3">
+                        <a href="{% url 'core:cashier_dashboard' %}" class="flex-1 inline-flex justify-center items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" class="flex-1 inline-flex justify-center items-center gap-2 rounded-md bg-green-600 px-4 py-3 text-sm font-medium text-white hover:bg-green-700 shadow-md">
+                            <i data-lucide="credit-card" class="h-5 w-5"></i>
+                            Process Payment
+                        </button>
+                    </div>
+
+                    <!-- Payment Summary Preview -->
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                        <p class="text-xs text-gray-500 mb-2">Payment Summary</p>
+                        <div class="space-y-1 text-sm">
+                            <div class="flex justify-between">
+                                <span>Payment Amount</span>
+                                <span class="font-medium" id="payment-amount-preview">{{ remaining|floatformat:0 }} FCFA</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Remaining After</span>
+                                <span class="font-medium" id="remaining-preview">0 FCFA</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+
+    const totalRemaining = {{ remaining|floatformat:0 }};
+    const amountInput = document.getElementById('amount');
+    const transactionRefField = document.getElementById('transaction-ref-field');
+    const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
+
+    // Format number input - only digits
+    amountInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+
+    // Show/hide transaction reference field based on payment method
+    paymentMethodRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'mobile_money' || this.value === 'orange_money') {
+                transactionRefField.classList.remove('hidden');
+                document.getElementById('transaction_reference').required = true;
+            } else {
+                transactionRefField.classList.add('hidden');
+                document.getElementById('transaction_reference').required = false;
+            }
+        });
+    });
+
+    // Update payment preview
+    amountInput.addEventListener('input', function() {
+        //const amount = Decimal(this.value) || 0;
+        const amount = Decimal(this.value || '0', 10);
+       // const amount = parseInt(amountInput.value || '0', 10);
+        const remaining = totalRemaining - amount;
+        
+        document.getElementById('payment-amount-preview').textContent = amount.toFixed(0) + ' FCFA';
+        document.getElementById('remaining-preview').textContent = Math.max(0, remaining).toFixed(0) + ' FCFA';
+    });
+
+    function setAmount(amount) {
+        amountInput.value = amount;
+        amountInput.dispatchEvent(new Event('input'));
+    }
+
+    // Prevent form submission if amount exceeds remaining
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const amount = parseFloat(amountInput.value) || 0;
+        
+        if (amount <= 0) {
+            e.preventDefault();
+            alert('Please enter a valid amount');
+            return;
+        }
+        
+        if (amount > totalRemaining) {
+            e.preventDefault();
+            alert('Amount cannot exceed remaining balance');
+            return;
+        }
+
+        // Confirm payment
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        const methodName = paymentMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        
+        if (!confirm(`Process ${amount.toFixed(0)} FCFA payment via ${methodName}?`)) {
+            e.preventDefault();
+        }
+    });
+</script>
+{% endblock %}

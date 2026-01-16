@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Posh Lounge{% endblock %}
+{% block page_subtitle %}Reports Dashboard{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">Reports</h1>
+            <p class="mt-1 text-sm text-gray-500">Analytics and business intelligence</p>
+        </div>
+
+        <!-- Report Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Sales Report -->
+            <a href="{% url 'dashboard:sales_report' %}" class="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
+                                <i data-lucide="dollar-sign" class="h-6 w-6 text-green-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Sales Report</h3>
+                            <p class="mt-1 text-sm text-gray-500">Revenue and transaction analysis</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3">
+                    <div class="text-sm font-medium text-indigo-600 flex items-center justify-between">
+                        <span>View Report</span>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Inventory Report -->
+            <a href="{% url 'dashboard:inventory_report' %}" class="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
+                                <i data-lucide="package" class="h-6 w-6 text-blue-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Inventory Report</h3>
+                            <p class="mt-1 text-sm text-gray-500">Stock levels and valuations</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3">
+                    <div class="text-sm font-medium text-indigo-600 flex items-center justify-between">
+                        <span>View Report</span>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Audit Trail -->
+            <a href="{% url 'dashboard:audit_trail' %}" class="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
+                                <i data-lucide="shield" class="h-6 w-6 text-purple-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Audit Trail</h3>
+                            <p class="mt-1 text-sm text-gray-500">Security and compliance logs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3">
+                    <div class="text-sm font-medium text-indigo-600 flex items-center justify-between">
+                        <span>View Logs</span>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Stock Movements -->
+            <a href="{% url 'dashboard:stock_movements' %}" class="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-orange-100 flex items-center justify-center">
+                                <i data-lucide="trending-up" class="h-6 w-6 text-orange-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Stock Movements</h3>
+                            <p class="mt-1 text-sm text-gray-500">Inventory transaction history</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3">
+                    <div class="text-sm font-medium text-indigo-600 flex items-center justify-between">
+                        <span>View History</span>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Low Stock Alerts -->
+            <a href="{% url 'dashboard:low_stock_alerts' %}" class="block bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow overflow-hidden">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-red-100 flex items-center justify-center">
+                                <i data-lucide="alert-triangle" class="h-6 w-6 text-red-600"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-900">Low Stock Alerts</h3>
+                            <p class="mt-1 text-sm text-gray-500">Products needing restocking</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-6 py-3">
+                    <div class="text-sm font-medium text-indigo-600 flex items-center justify-between">
+                        <span>View Alerts</span>
+                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Coming Soon: More Reports -->
+            <div class="block bg-gray-100 rounded-lg shadow overflow-hidden opacity-60">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                <i data-lucide="bar-chart" class="h-6 w-6 text-gray-500"></i>
+                            </div>
+                        </div>
+                        <div class="ml-4 flex-1">
+                            <h3 class="text-lg font-medium text-gray-600">More Reports</h3>
+                            <p class="mt-1 text-sm text-gray-500">Coming soon...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-200 px-6 py-3">
+                    <div class="text-sm font-medium text-gray-500">
+                        Coming Soon
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Statistics</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-500">Total Revenue (MTD)</p>
+                    <p class="text-2xl font-bold text-gray-900">-- FCFA</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-500">Total Orders (MTD)</p>
+                    <p class="text-2xl font-bold text-gray-900">--</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-500">Avg Order Value</p>
+                    <p class="text-2xl font-bold text-gray-900">-- FCFA</p>
+                </div>
+                <div class="text-center p-4 bg-gray-50 rounded-lg">
+                    <p class="text-sm text-gray-500">Active Products</p>
+                    <p class="text-2xl font-bold text-gray-900">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

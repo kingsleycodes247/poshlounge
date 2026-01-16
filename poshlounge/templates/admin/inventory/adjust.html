@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Adjust Stock - Posh Lounge{% endblock %}
+{% block content %}
+<div class="py-6">
+    <div class="max-w-2xl mx-auto px-4">
+        <h1 class="text-2xl font-bold mb-6">Adjust Stock - {{ product.name }}</h1>
+        
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div><span class="text-gray-600">Current Stock:</span> <span class="font-bold text-2xl">{{ product.stock_quantity }}</span></div>
+                <div><span class="text-gray-600">Min Level:</span> <span class="font-semibold">{{ product.min_stock_level }}</span></div>
+            </div>
+        </div>
+
+        <form method="POST" class="bg-white rounded-lg shadow p-6 space-y-6">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="flex gap-3">
+                <a href="{% url 'dashboard:inventory_dashboard' %}" class="flex-1 rounded-md border px-4 py-2 text-center">Cancel</a>
+                <button type="submit" class="flex-1 rounded-md bg-indigo-600 px-4 py-2 text-white">Update Stock</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

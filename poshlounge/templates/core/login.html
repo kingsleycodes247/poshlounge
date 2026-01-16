@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Posh Lounge POS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="h-full">
+    <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="flex justify-center">
+                <div class="rounded-full bg-indigo-600 p-4">
+                    <i data-lucide="utensils" class="h-12 w-12 text-white"></i>
+                </div>
+            </div>
+            <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
+                Posh Lounge
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                Point of Sale System
+            </p>
+        </div>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-200">
+                <!-- Flash messages -->
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="rounded-md p-4 {% if message.tags == 'error' %}bg-red-50 border border-red-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+                        <div class="flex">
+                            <i data-lucide="{% if message.tags == 'error' %}alert-circle{% else %}info{% endif %}" class="h-5 w-5 {% if message.tags == 'error' %}text-red-600{% else %}text-blue-600{% endif %}"></i>
+                            <p class="ml-3 text-sm {% if message.tags == 'error' %}text-red-800{% else %}text-blue-800{% endif %}">
+                                {{ message }}
+                            </p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Login tabs -->
+                <div class="mb-6">
+                    <div class="border-b border-gray-200">
+                        <nav class="-mb-px flex gap-6" aria-label="Tabs">
+                            <button onclick="switchTab('password')" id="tab-password" class="tab-button active whitespace-nowrap border-b-2 border-indigo-600 py-2 px-1 text-sm font-medium text-indigo-600">
+                                Password Login
+                            </button>
+                            <button onclick="switchTab('pin')" id="tab-pin" class="tab-button whitespace-nowrap border-b-2 border-transparent py-2 px-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                                PIN Login
+                            </button>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Password login form -->
+                <form method="POST" id="password-form" class="space-y-6" action="{% url 'core:login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="login_type" value="password">
+                    
+                    <div>
+                        <label for="username-pwd" class="block text-sm font-medium text-gray-700">
+                            Username
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="user" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="text" name="username" id="username-pwd" required 
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter username" autofocus>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700">
+                            Password
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="password" name="password" id="password" required
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter password">
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            <i data-lucide="log-in" class="h-5 w-5 mr-2"></i>
+                            Sign in
+                        </button>
+                    </div>
+                </form>
+
+                <!-- PIN login form -->
+                <form method="POST" id="pin-form" class="space-y-6 hidden" action="{% url 'core:login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="login_type" value="pin">
+                    
+                    <div>
+                        <label for="username-pin" class="block text-sm font-medium text-gray-700">
+                            Username
+                        </label>
+                        <div class="mt-1 relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="user" class="h-5 w-5 text-gray-400"></i>
+                            </div>
+                            <input type="text" name="username" id="username-pin"
+                                   class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                   placeholder="Enter username">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="pin" class="block text-sm font-medium text-gray-700">
+                            PIN Code
+                        </label>
+                        <div class="mt-1">
+                            <input type="password" name="pin" id="pin" maxlength="6" pattern="[0-9]{4,6}"
+                                   class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-center text-2xl tracking-widest focus:ring-indigo-500 focus:border-indigo-500"
+                                   placeholder="••••••">
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">Enter your 4-6 digit PIN</p>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                            <i data-lucide="unlock" class="h-5 w-5 mr-2"></i>
+                            Unlock
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Quick access hint -->
+                <div class="mt-6 p-4 bg-gray-50 rounded-md border border-gray-200">
+                    <p class="text-xs text-gray-600 flex items-start gap-2">
+                        <i data-lucide="info" class="h-4 w-4 mt-0.5 text-gray-400"></i>
+                        <span>Use PIN login for faster access. Contact your administrator to set up your PIN code.</span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <p class="mt-6 text-center text-xs text-gray-500">
+                Posh Lounge POS v1.0 &copy; 2025
+            </p>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        function switchTab(type) {
+            const passwordForm = document.getElementById('password-form');
+            const pinForm = document.getElementById('pin-form');
+            const tabPassword = document.getElementById('tab-password');
+            const tabPin = document.getElementById('tab-pin');
+            
+            if (type === 'password') {
+                passwordForm.classList.remove('hidden');
+                pinForm.classList.add('hidden');
+                tabPassword.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                tabPassword.classList.remove('border-transparent', 'text-gray-500');
+                tabPin.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                tabPin.classList.add('border-transparent', 'text-gray-500');
+                document.getElementById('username-pwd').focus();
+            } else {
+                passwordForm.classList.add('hidden');
+                pinForm.classList.remove('hidden');
+                tabPin.classList.add('active', 'border-indigo-600', 'text-indigo-600');
+                tabPin.classList.remove('border-transparent', 'text-gray-500');
+                tabPassword.classList.remove('active', 'border-indigo-600', 'text-indigo-600');
+                tabPassword.classList.add('border-transparent', 'text-gray-500');
+                document.getElementById('username-pin').focus();
+            }
+            
+            lucide.createIcons();
+        }
+        
+        // Auto-focus PIN input and validate numeric only
+        document.getElementById('pin').addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+</body>
+</html>

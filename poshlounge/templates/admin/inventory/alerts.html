@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Low Stock Alerts - Posh Lounge{% endblock %}
+{% block page_subtitle %}Inventory Alerts{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="h-8 w-8 text-red-600"></i>
+                    Low Stock Alerts
+                </h1>
+                <p class="mt-1 text-sm text-gray-500">Products needing immediate restocking</p>
+            </div>
+            <a href="{% url 'dashboard:inventory_dashboard' %}" class="inline-flex items-center gap-2 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                Back to Inventory
+            </a>
+        </div>
+
+        <!-- Alert Summary -->
+        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
+            <div class="flex items-center">
+                <i data-lucide="alert-circle" class="h-6 w-6 text-red-600 mr-3"></i>
+                <div>
+                    <h3 class="text-lg font-medium text-red-900">
+                        {{ low_stock_products|length }} Product{{ low_stock_products|length|pluralize }} Need{{ low_stock_products|length|pluralize:"s," }} Attention
+                    </h3>
+                    <p class="text-sm text-red-700">Stock levels are below minimum thresholds. Please restock soon.</p>
+                </div>
+            </div>
+        </div>
+
+        {% if low_stock_products %}
+        <!-- Products Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for product in low_stock_products %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 
+                        {% if product.stock_quantity == 0 %}border-red-600{% else %}border-yellow-500{% endif %}">
+                <div class="p-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-900">{{ product.name }}</h3>
+                            <p class="text-sm text-gray-500 mt-1">SKU: {{ product.sku }}</p>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 mt-2">
+                                {{ product.category.name }}
+                            </span>
+                        </div>
+                        <div class="ml-4">
+                            {% if product.stock_quantity == 0 %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
+                                OUT OF STOCK
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">
+                                LOW STOCK
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Stock Information -->
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Current Stock</span>
+                            <span class="text-xl font-bold 
+                                {% if product.stock_quantity == 0 %}text-red-600
+                                {% else %}text-yellow-600{% endif %}">
+                                {{ product.stock_quantity|floatformat:0 }} {{ product.unit_of_measure }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Minimum Level</span>
+                            <span class="text-lg font-semibold text-blue-600">
+                                {{ product.min_stock_level|floatformat:0 }} {{ product.unit_of_measure }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <span class="text-sm text-gray-600">Suggested Restock</span>
+                            <span class="text-lg font-semibold text-green-600">
+                                {{ product.min_stock_level|floatformat:0 }} {{ product.unit_of_measure }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="mb-4">
+                        <div class="flex justify-between text-xs text-gray-600 mb-1">
+                            <span>Stock Level</span>
+                            <span>
+                                {% widthratio product.stock_quantity product.min_stock_level 100 %}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="h-2 rounded-full 
+                                {% if product.stock_quantity == 0 %}bg-red-600
+                                {% else %}bg-yellow-500{% endif %}" 
+                                 style="width: {% widthratio product.stock_quantity product.min_stock_level 100 %}%">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-2">
+                        <a href="{% url 'dashboard:inventory_adjust' product.pk %}" 
+                           class="flex-1 inline-flex justify-center items-center gap-2 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                            <i data-lucide="package-plus" class="h-4 w-4"></i>
+                            Restock
+                        </a>
+                        <a href="{% url 'dashboard:product_edit' product.pk %}" 
+                           class="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="edit" class="h-4 w-4"></i>
+                            Edit
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bulk Actions -->
+        <div class="mt-8 bg-white rounded-lg shadow p-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button onclick="alert('Export feature coming soon!')" 
+                        class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i data-lucide="download" class="h-5 w-5"></i>
+                    Export Alert List
+                </button>
+                <button onclick="window.print()" 
+                        class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i data-lucide="printer" class="h-5 w-5"></i>
+                    Print Report
+                </button>
+                <a href="{% url 'dashboard:stock_movements' %}" 
+                   class="inline-flex items-center justify-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    <i data-lucide="trending-up" class="h-5 w-5"></i>
+                    View Stock History
+                </a>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- No Alerts State -->
+        <div class="bg-white rounded-lg shadow-lg p-12 text-center">
+            <div class="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-100 mb-6">
+                <i data-lucide="check-circle" class="h-12 w-12 text-green-600"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-900 mb-2">All Stock Levels Are Good!</h3>
+            <p class="text-gray-600 mb-6">No products are currently below their minimum stock levels.</p>
+            <a href="{% url 'dashboard:inventory_dashboard' %}" 
+               class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-6 py-3 text-sm font-medium text-white hover:bg-indigo-700">
+                <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                Back to Inventory
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

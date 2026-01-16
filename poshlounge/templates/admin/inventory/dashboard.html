@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Inventory - Posh Lounge{% endblock %}
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4">
+        <h1 class="text-3xl font-bold mb-6">Inventory Management</h1>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Total Products</p>
+                <p class="text-3xl font-bold">{{ total_products }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Low Stock</p>
+                <p class="text-3xl font-bold text-red-600">{{ low_stock_count }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Out of Stock</p>
+                <p class="text-3xl font-bold text-red-600">{{ out_of_stock_count }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <p class="text-sm text-gray-500">Total Value</p>
+                <p class="text-2xl font-bold">{{ total_inventory_value|floatformat:0 }} FCFA</p>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="grid grid-cols-3 gap-4">
+            <a href="{% url 'dashboard:low_stock_alerts' %}" class="bg-white p-6 rounded-lg shadow hover:shadow-lg">
+                <i data-lucide="alert-triangle" class="h-8 w-8 text-red-600 mb-2"></i>
+                <h3 class="font-semibold">Low Stock Alerts</h3>
+            </a>
+            <a href="{% url 'dashboard:stock_movements' %}" class="bg-white p-6 rounded-lg shadow hover:shadow-lg">
+                <i data-lucide="trending-up" class="h-8 w-8 text-blue-600 mb-2"></i>
+                <h3 class="font-semibold">Stock Movements</h3>
+            </a>
+            <a href="{% url 'dashboard:product_list' %}" class="bg-white p-6 rounded-lg shadow hover:shadow-lg">
+                <i data-lucide="package" class="h-8 w-8 text-green-600 mb-2"></i>
+                <h3 class="font-semibold">Manage Products</h3>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_js %}<script>lucide.createIcons();</script>{% endblock %}

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Select Table - Posh Lounge{% endblock %}
+{% block page_subtitle %}Table Selection{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Select Table</h1>
+                <p class="mt-1 text-sm text-gray-500">Choose a table to create or manage an order</p>
+            </div>
+            <a href="{% url 'core:waiter_dashboard' %}" class="inline-flex items-center gap-2 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Tables Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {% for table in tables %}
+            <a href="{% url 'core:waiter_create_order' table.id %}" 
+               class="relative group block rounded-lg border-2 transition-all hover:shadow-lg
+                      {% if table.is_occupied %}
+                          border-red-300 bg-red-50 hover:border-red-400
+                      {% else %}
+                          border-green-300 bg-green-50 hover:border-green-400
+                      {% endif %}">
+                <div class="p-6 text-center">
+                    <!-- Table Icon -->
+                    <div class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full
+                                {% if table.is_occupied %}bg-red-100{% else %}bg-green-100{% endif %}">
+                        <i data-lucide="utensils" class="h-8 w-8 
+                           {% if table.is_occupied %}text-red-600{% else %}text-green-600{% endif %}"></i>
+                    </div>
+                    
+                    <!-- Table Number -->
+                    <h3 class="text-2xl font-bold {% if table.is_occupied %}text-red-900{% else %}text-green-900{% endif %}">
+                        Table {{ table.number }}
+                    </h3>
+                    
+                    <!-- Capacity -->
+                    <p class="mt-1 text-sm {% if table.is_occupied %}text-red-600{% else %}text-green-600{% endif %}">
+                        <i data-lucide="users" class="h-3 w-3 inline"></i>
+                        {{ table.capacity }} seats
+                    </p>
+                    
+                    <!-- Status Badge -->
+                    <div class="mt-3">
+                        <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+                                     {% if table.is_occupied %}
+                                         bg-red-100 text-red-800
+                                     {% else %}
+                                         bg-green-100 text-green-800
+                                     {% endif %}">
+                            <i data-lucide="{% if table.is_occupied %}lock{% else %}check-circle{% endif %}" class="h-3 w-3"></i>
+                            {% if table.is_occupied %}Occupied{% else %}Available{% endif %}
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Hover Overlay -->
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-10 rounded-lg">
+                    <span class="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-gray-900 shadow-lg">
+                        <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                        {% if table.is_occupied %}View Order{% else %}New Order{% endif %}
+                    </span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+
+        <!-- Legend -->
+        <div class="mt-8 flex items-center justify-center gap-6 text-sm">
+            <div class="flex items-center gap-2">
+                <div class="h-4 w-4 rounded-full bg-green-500"></div>
+                <span class="text-gray-600">Available</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="h-4 w-4 rounded-full bg-red-500"></div>
+                <span class="text-gray-600">Occupied</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

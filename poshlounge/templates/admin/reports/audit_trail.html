@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Audit Trail - Posh Lounge{% endblock %}
+{% block page_subtitle %}System Audit Logs{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="shield" class="h-8 w-8 text-purple-600"></i>
+                    Audit Trail
+                </h1>
+                <p class="mt-1 text-sm text-gray-500">Complete system activity log for security and compliance</p>
+            </div>
+            <a href="{% url 'dashboard:reports_dashboard' %}" class="inline-flex items-center gap-2 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                Back to Reports
+            </a>
+        </div>
+
+        <!-- Filters & Actions -->
+        <div class="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Filters -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-3">Filter Logs</h3>
+                <form method="GET" class="flex flex-wrap items-end gap-3">
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="user" class="block text-xs font-medium text-gray-700 mb-1">User</label>
+                        <select name="user" id="user" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                            <option value="">All Users</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.username }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex-1 min-w-[150px]">
+                        <label for="action" class="block text-xs font-medium text-gray-700 mb-1">Action Type</label>
+                        <select name="action" id="action" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                            <option value="">All Actions</option>
+                            <option value="login">Login</option>
+                            <option value="logout">Logout</option>
+                            <option value="order_create">Order Created</option>
+                            <option value="payment_process">Payment Processed</option>
+                            <option value="stock_adjust">Stock Adjusted</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                        <i data-lucide="filter" class="h-4 w-4"></i>
+                        Filter
+                    </button>
+                </form>
+            </div>
+
+            <!-- Maintenance Actions -->
+            <div class="bg-white rounded-lg shadow p-4">
+                <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="trash-2" class="h-4 w-4 text-red-600"></i>
+                    Log Maintenance
+                </h3>
+                <form method="POST" onsubmit="return confirm('Delete audit logs older than 90 days? This action cannot be undone.');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_old">
+                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-md border border-red-300 bg-white px-4 py-2 text-sm font-medium text-red-700 hover:bg-red-50">
+                        <i data-lucide="calendar-x" class="h-4 w-4"></i>
+                        Delete Logs Older Than 90 Days
+                    </button>
+                </form>
+                <p class="mt-2 text-xs text-gray-500">
+                    <i data-lucide="info" class="h-3 w-3 inline"></i>
+                    Helps maintain database performance
+                </p>
+            </div>
+        </div>
+
+        <!-- Audit Logs Table -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Recent Activity (Last 200)</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Device/IP</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for log in logs %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ log.created_at|date:"M d, Y H:i:s" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                                        <i data-lucide="user" class="h-4 w-4 text-indigo-600"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            {% if log.user %}{{ log.user.username }}{% else %}System{% endif %}
+                                        </div>
+                                        {% if log.user %}
+                                        <div class="text-xs text-gray-500">{{ log.user.get_role_display }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if log.action_type == 'login' %}bg-green-100 text-green-800
+                                    {% elif log.action_type == 'logout' %}bg-gray-100 text-gray-800
+                                    {% elif log.action_type == 'payment_process' %}bg-blue-100 text-blue-800
+                                    {% elif log.action_type == 'stock_adjust' %}bg-purple-100 text-purple-800
+                                    {% elif log.action_type == 'order_create' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ log.get_action_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-900">
+                                {{ log.description|truncatewords:15 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-col gap-1">
+                                    {% if log.device_id %}
+                                    <span class="font-mono text-xs">🖥️ {{ log.device_id|slice:":8" }}...</span>
+                                    {% endif %}
+                                    {% if log.ip_address %}
+                                    <span class="font-mono text-xs">🌐 {{ log.ip_address }}</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                                <i data-lucide="inbox" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <p class="mt-2">No audit logs found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Info Cards -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
+                        <i data-lucide="database" class="h-5 w-5 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Total Logs</p>
+                        <p class="text-xl font-bold text-gray-900">{{ logs|length }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <i data-lucide="check-circle" class="h-5 w-5 text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Showing</p>
+                        <p class="text-xl font-bold text-gray-900">Last 200</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <i data-lucide="shield-check" class="h-5 w-5 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500">Status</p>
+                        <p class="text-sm font-medium text-green-600">Protected</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="mt-6 flex justify-end gap-3">
+            <button onclick="window.print()" class="inline-flex items-center gap-2 rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i data-lucide="printer" class="h-4 w-4"></i>
+                Print Audit Trail
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

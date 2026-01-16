@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block title %}Stock Movements - Posh Lounge{% endblock %}
+{% block page_subtitle %}Inventory History{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Stock Movements</h1>
+                <p class="mt-1 text-sm text-gray-500">Complete inventory transaction history</p>
+            </div>
+            <a href="{% url 'dashboard:inventory_dashboard' %}" class="inline-flex items-center gap-2 rounded-md bg-gray-600 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
+                <i data-lucide="arrow-left" class="h-5 w-5"></i>
+                Back to Inventory
+            </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-6 bg-white rounded-lg shadow p-4">
+            <form method="GET" class="flex flex-wrap items-end gap-4">
+                <div class="flex-1 min-w-[200px]">
+                    <label for="product" class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+                    <select name="product" id="product" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">All Products</option>
+                        {% for product in products %}
+                        <option value="{{ product.id }}">{{ product.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[200px]">
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Movement Type</label>
+                    <select name="type" id="type" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                        <option value="">All Types</option>
+                        <option value="purchase">Purchase/Restock</option>
+                        <option value="sale">Sale</option>
+                        <option value="adjustment">Manual Adjustment</option>
+                        <option value="wastage">Wastage/Loss</option>
+                        <option value="return">Return</option>
+                    </select>
+                </div>
+                <button type="submit" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                    <i data-lucide="filter" class="h-4 w-4"></i>
+                    Apply Filter
+                </button>
+            </form>
+        </div>
+
+        <!-- Movements Table -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <h2 class="text-lg font-medium text-gray-900">Recent Movements (Last 100)</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Previous</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">New</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for movement in movements %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ movement.created_at|date:"M d, Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ movement.product.name }}</div>
+                                <div class="text-xs text-gray-500">{{ movement.product.sku }}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if movement.movement_type == 'purchase' %}bg-green-100 text-green-800
+                                    {% elif movement.movement_type == 'sale' %}bg-blue-100 text-blue-800
+                                    {% elif movement.movement_type == 'wastage' %}bg-red-100 text-red-800
+                                    {% elif movement.movement_type == 'return' %}bg-purple-100 text-purple-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ movement.get_movement_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                                <span class="text-sm font-semibold
+                                    {% if movement.quantity > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                    {% if movement.quantity > 0 %}+{% endif %}{{ movement.quantity|floatformat:0 }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                                {{ movement.previous_quantity|floatformat:0 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                                {{ movement.new_quantity|floatformat:0 }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {% if movement.reference_number %}
+                                    <span class="font-mono">{{ movement.reference_number }}</span>
+                                {% else %}
+                                    <span class="text-gray-400">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ movement.created_by.username }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                <i data-lucide="inbox" class="mx-auto h-12 w-12 text-gray-400"></i>
+                                <p class="mt-2">No stock movements found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Total Movements</p>
+                <p class="text-2xl font-bold text-gray-900">{{ movements|length }}</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Products Tracked</p>
+                <p class="text-2xl font-bold text-gray-900">{{ products|length }}</p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Sales</p>
+                <p class="text-2xl font-bold text-blue-600">
+                    {{ movements|length }}
+                </p>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4">
+                <p class="text-sm text-gray-500">Restocks</p>
+                <p class="text-2xl font-bold text-green-600">
+                    {{ movements|length }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Export Options -->
+        <div class="mt-6 flex justify-end gap-3">
+            <button onclick="window.print()" class="inline-flex items-center gap-2 rounded-md bg-white border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                <i data-lucide="printer" class="h-4 w-4"></i>
+                Print Report
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+</script>
+{% endblock %}

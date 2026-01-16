@@ -1,0 +1,209 @@
+{% extends 'base.html' %}
+
+{% block title %}End Shift - Posh Lounge{% endblock %}
+{% block page_subtitle %}Cashier Shift Management{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header Card -->
+        <div class="mb-6 bg-gradient-to-r from-red-600 to-pink-600 rounded-lg shadow-lg p-8 text-white">
+            <div class="text-center">
+                <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white bg-opacity-20">
+                    <i data-lucide="log-out" class="h-8 w-8 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold">End Your Shift</h1>
+                <p class="mt-2 text-red-100">Shift started: {{ active_shift.started_at|date:"M d, Y - H:i" }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Shift Summary -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-lg font-medium text-gray-900">Shift Summary</h2>
+                </div>
+
+                <div class="p-6 space-y-4">
+                    <div class="flex justify-between items-center pb-3 border-b">
+                        <span class="text-sm text-gray-600">Opening Cash</span>
+                        <span class="text-lg font-bold text-gray-900">{{ active_shift.opening_cash|floatformat:0 }} FCFA</span>
+                    </div>
+
+                    <div class="flex justify-between items-center pb-3 border-b">
+                        <span class="text-sm text-gray-600">Total Transactions</span>
+                        <span class="text-lg font-bold text-gray-900">{{ total_transactions }}</span>
+                    </div>
+
+                    <div class="flex justify-between items-center pb-3 border-b">
+                        <span class="text-sm text-gray-600">Expected Cash</span>
+                        <span class="text-lg font-bold text-green-600">{{ expected_cash|floatformat:0 }} FCFA</span>
+                    </div>
+
+                    <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                        <p class="text-xs text-blue-600 mb-2">Expected Cash Calculation:</p>
+                        <p class="text-sm text-blue-900">
+                            Opening ({{ active_shift.opening_cash|floatformat:0 }}) + Cash Payments = {{ expected_cash|floatformat:0 }} FCFA
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Closing Cash Form -->
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                    <h2 class="text-lg font-medium text-gray-900">Closing Cash Count</h2>
+                    <p class="mt-1 text-sm text-gray-500">Count all cash in the drawer</p>
+                </div>
+
+                <form method="POST" class="p-6">
+                    {% csrf_token %}
+
+                    <div class="mb-6">
+                        <label for="closing_cash" class="block text-sm font-medium text-gray-700 mb-2">
+                            Actual Cash in Drawer
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">FCFA</span>
+                            </div>
+                            <input type="number" 
+                                   name="closing_cash" 
+                                   id="closing_cash" 
+                                   required
+                                   min="0"
+                                   step="1"
+                                   class="block w-full pl-16 pr-3 py-4 text-3xl font-bold border-2 border-gray-300 rounded-md shadow-sm focus:ring-red-500 focus:border-red-500"
+                                   placeholder="0"
+                                   autofocus
+                                   onkeyup="calculateVariance()">
+                        </div>
+                    </div>
+
+                    <!-- Variance Display -->
+                    <div id="variance-display" class="mb-6 hidden">
+                        <div class="rounded-lg p-4" id="variance-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium" id="variance-label">Variance</p>
+                                    <p class="text-xs" id="variance-description"></p>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold" id="variance-amount"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warning Notice -->
+                    <div class="mb-6 rounded-lg border border-orange-200 bg-orange-50 p-4">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="alert-circle" class="h-5 w-5 text-orange-600 mt-0.5"></i>
+                            <div>
+                                <h3 class="text-sm font-medium text-orange-900">Before Submitting</h3>
+                                <ul class="mt-2 text-sm text-orange-700 space-y-1">
+                                    <li>• Count all bills and coins carefully</li>
+                                    <li>• Double-check your count</li>
+                                    <li>• Large variances will be flagged</li>
+                                    <li>• You will be logged out after ending shift</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3">
+                        <a href="{% url 'core:cashier_dashboard' %}" 
+                           class="flex-1 inline-flex justify-center items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                            Cancel
+                        </a>
+                        <button type="submit" 
+                                class="flex-1 inline-flex justify-center items-center gap-2 rounded-md bg-red-600 px-4 py-3 text-sm font-medium text-white hover:bg-red-700 shadow-md">
+                            <i data-lucide="stop-circle" class="h-5 w-5"></i>
+                            End Shift
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="mt-6 rounded-lg bg-gray-50 border border-gray-200 p-4">
+            <h3 class="text-sm font-medium text-gray-900 mb-2">
+                <i data-lucide="info" class="h-4 w-4 inline"></i>
+                What happens after ending shift?
+            </h3>
+            <ul class="text-sm text-gray-600 space-y-1">
+                <li>• Your shift summary will be saved</li>
+                <li>• Cash variance will be recorded</li>
+                <li>• You will be logged out automatically</li>
+                <li>• Supervisor will be notified of large variances</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="expected-cash-value" value="{{ expected_cash|floatformat:0 }}">
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    lucide.createIcons();
+    
+    const expectedCash = parseFloat(document.getElementById('expected-cash-value').value);
+    
+    function calculateVariance() {
+        const closingCash = parseFloat(document.getElementById('closing_cash').value) || 0;
+        const variance = closingCash - expectedCash;
+        
+        const varianceDisplay = document.getElementById('variance-display');
+        const varianceCard = document.getElementById('variance-card');
+        const varianceLabel = document.getElementById('variance-label');
+        const varianceDescription = document.getElementById('variance-description');
+        const varianceAmount = document.getElementById('variance-amount');
+        
+        if (closingCash > 0) {
+            varianceDisplay.classList.remove('hidden');
+            
+            const absVariance = Math.abs(variance);
+            varianceAmount.textContent = (variance >= 0 ? '+' : '') + variance.toFixed(0) + ' FCFA';
+            
+            if (absVariance === 0) {
+                varianceCard.className = 'rounded-lg p-4 bg-green-50 border border-green-200';
+                varianceLabel.className = 'text-sm font-medium text-green-900';
+                varianceDescription.className = 'text-xs text-green-700';
+                varianceAmount.className = 'text-2xl font-bold text-green-600';
+                varianceLabel.textContent = '✓ Perfect Match';
+                varianceDescription.textContent = 'No variance detected';
+            } else if (absVariance <= 10) {
+                varianceCard.className = 'rounded-lg p-4 bg-blue-50 border border-blue-200';
+                varianceLabel.className = 'text-sm font-medium text-blue-900';
+                varianceDescription.className = 'text-xs text-blue-700';
+                varianceAmount.className = 'text-2xl font-bold text-blue-600';
+                varianceLabel.textContent = 'Minor Variance';
+                varianceDescription.textContent = 'Within acceptable range';
+            } else if (absVariance <= 100) {
+                varianceCard.className = 'rounded-lg p-4 bg-yellow-50 border border-yellow-200';
+                varianceLabel.className = 'text-sm font-medium text-yellow-900';
+                varianceDescription.className = 'text-xs text-yellow-700';
+                varianceAmount.className = 'text-2xl font-bold text-yellow-600';
+                varianceLabel.textContent = '⚠ Variance Detected';
+                varianceDescription.textContent = variance > 0 ? 'Cash over expected' : 'Cash short';
+            } else {
+                varianceCard.className = 'rounded-lg p-4 bg-red-50 border border-red-200';
+                varianceLabel.className = 'text-sm font-medium text-red-900';
+                varianceDescription.className = 'text-xs text-red-700';
+                varianceAmount.className = 'text-2xl font-bold text-red-600';
+                varianceLabel.textContent = '⚠ Large Variance';
+                varianceDescription.textContent = 'Please recount before submitting';
+            }
+        } else {
+            varianceDisplay.classList.add('hidden');
+        }
+        
+        lucide.createIcons();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+
+{% block title %}Waiter Dashboard - Posh Lounge{% endblock %}
+{% block page_subtitle %}Waiter Dashboard{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6 flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Active Orders</h1>
+                <p class="mt-1 text-sm text-gray-500">Manage your current table orders</p>
+            </div>
+            <a href="{% url 'core:waiter_tables' %}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                New Order
+            </a>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="clipboard-list" class="h-8 w-8 text-indigo-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Orders</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">{{ total_orders }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="clock" class="h-8 w-8 text-yellow-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Preparing</dt>
+                                <dd class="text-2xl font-semibold text-gray-900">
+                                    {{ active_orders|length }}
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="check-circle" class="h-8 w-8 text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Ready to Serve</dt>
+                                <dd class="text-2xl font-semibold text-gray-900" id="ready-count">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Orders List -->
+        {% if active_orders %}
+        <div class="bg-white shadow overflow-hidden sm:rounded-md">
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for order in active_orders %}
+                <li class="order-item" data-status="{{ order.status }}">
+                    <div class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-4">
+                                <!-- Status Badge -->
+                                <span class="inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-medium
+                                    {% if order.status == 'pending' %}bg-gray-100 text-gray-800
+                                    {% elif order.status == 'preparing' %}bg-yellow-100 text-yellow-800
+                                    {% elif order.status == 'ready' %}bg-green-100 text-green-800
+                                    {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                    <i data-lucide="{% if order.status == 'pending' %}clock{% elif order.status == 'preparing' %}loader{% elif order.status == 'ready' %}check-circle{% else %}package{% endif %}" class="h-3 w-3"></i>
+                                    {{ order.get_status_display }}
+                                </span>
+                                
+                                <!-- Order Info -->
+                                <div>
+                                    <p class="text-sm font-medium text-indigo-600">
+                                        Order #{{ order.order_number }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        <i data-lucide="utensils" class="h-3 w-3 inline"></i>
+                                        {% if order.table %}Table {{ order.table.number }}{% else %}Takeout{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-4">
+                                <!-- Order Details -->
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-gray-900">
+                                        {{ order.total_amount|floatformat:0 }} FCFA
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ order.items.count }} item{{ order.items.count|pluralize }}
+                                    </p>
+                                </div>
+
+                                <!-- Actions -->
+                                <div class="flex gap-2">
+                                    {% if order.status in 'pending,preparing' %}
+                                    <a href="{% url 'core:waiter_add_items' order.id %}" class="inline-flex items-center gap-1 rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+                                        <i data-lucide="edit" class="h-4 w-4"></i>
+                                        Edit
+                                    </a>
+                                    {% endif %}
+                                    
+                                    <button onclick="viewOrderDetails('{{ order.id }}')" class="inline-flex items-center gap-1 rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                                        <i data-lucide="eye" class="h-4 w-4"></i>
+                                        View
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items Preview -->
+                        <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                            {% for item in order.items.all|slice:":4" %}
+                            <div class="flex items-center gap-2 text-xs text-gray-600">
+                                <i data-lucide="{% if item.product.requires_kitchen %}utensils{% else %}package{% endif %}" class="h-3 w-3"></i>
+                                <span>{{ item.quantity|floatformat:0 }}x {{ item.product.name }}</span>
+                            </div>
+                            {% endfor %}
+                            {% if order.items.count > 4 %}
+                            <div class="text-xs text-gray-500">
+                                +{{ order.items.count|add:"-4" }} more...
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Time elapsed -->
+                        <div class="mt-2 text-xs text-gray-500">
+                            <i data-lucide="clock" class="h-3 w-3 inline"></i>
+                            Created {{ order.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-white rounded-lg shadow">
+            <i data-lucide="inbox" class="mx-auto h-12 w-12 text-gray-400"></i>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No active orders</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by creating a new order for a table.</p>
+            <div class="mt-6">
+                <a href="{% url 'core:waiter_tables' %}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                    <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                    New Order
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Order Details Modal -->
+<div id="orderModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 z-50 overflow-y-auto">
+    <div class="flex min-h-full items-center justify-center p-4">
+        <div class="relative bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-lg font-medium text-gray-900" id="modalTitle">Order Details</h3>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-500">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
+            </div>
+            <div id="modalContent" class="px-6 py-4">
+                <!-- Content loaded dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh orders every 10 seconds
+    setInterval(() => {
+        location.reload();
+    }, 10000);
+
+    // Count ready orders
+    document.addEventListener('DOMContentLoaded', () => {
+        const readyOrders = document.querySelectorAll('.order-item[data-status="ready"]');
+        document.getElementById('ready-count').textContent = readyOrders.length;
+        
+        lucide.createIcons();
+    });
+
+    function viewOrderDetails(orderId) {
+        // Show modal
+        const modal = document.getElementById('orderModal');
+        modal.classList.remove('hidden');
+        
+        // Load order details (in production, fetch via AJAX)
+        document.getElementById('modalContent').innerHTML = '<p class="text-center py-8">Loading...</p>';
+        
+        lucide.createIcons();
+    }
+
+    function closeModal() {
+        document.getElementById('orderModal').classList.add('hidden');
+    }
+
+    // Close modal on outside click
+    document.getElementById('orderModal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'orderModal') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

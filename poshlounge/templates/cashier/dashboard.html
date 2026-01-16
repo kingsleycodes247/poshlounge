@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+
+{% block title %}Cashier Dashboard - Posh Lounge{% endblock %}
+{% block page_subtitle %}Cashier Terminal{% endblock %}
+
+{% block content %}
+<div class="py-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Shift Status Banner -->
+        <div class="mb-6 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-2xl font-bold">Active Shift</h2>
+                    <p class="mt-1 text-indigo-100">
+                        Started: {{ active_shift.started_at|date:"M d, Y - H:i" }}
+                    </p>
+                </div>
+                <a href="{% url 'core:cashier_end_shift' %}" class="inline-flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50">
+                    <i data-lucide="log-out" class="h-5 w-5"></i>
+                    End Shift
+                </a>
+            </div>
+        </div>
+
+        <!-- Shift Statistics -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-4 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="dollar-sign" class="h-8 w-8 text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Sales</dt>
+                                <dd class="text-lg font-bold text-gray-900">{{ shift_total|floatformat:0 }} FCFA</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="banknote" class="h-8 w-8 text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Cash</dt>
+                                <dd class="text-lg font-bold text-gray-900">{{ cash_total|floatformat:0 }} FCFA</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="smartphone" class="h-8 w-8 text-purple-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Mobile/Orange</dt>
+                                <dd class="text-lg font-bold text-gray-900">{{ mobile_total|add:orange_total|floatformat:0 }} FCFA</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i data-lucide="receipt" class="h-8 w-8 text-indigo-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Transactions</dt>
+                                <dd class="text-lg font-bold text-gray-900">{{ transaction_count }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Orders -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+            <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900">Pending Payments</h3>
+                <p class="mt-1 text-sm text-gray-500">Orders ready for payment processing</p>
+            </div>
+
+            {% if pending_orders %}
+            <ul role="list" class="divide-y divide-gray-200">
+                {% for order in pending_orders %}
+                {% with total_paid=order.payments.all|length %}
+                <li class="hover:bg-gray-50">
+                    <div class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-4">
+                                    <!-- Order Number -->
+                                    <div>
+                                        <p class="text-sm font-medium text-indigo-600">
+                                            Order #{{ order.order_number }}
+                                        </p>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            {% if order.table %}
+                                                <i data-lucide="utensils" class="h-3 w-3 inline"></i>
+                                                Table {{ order.table.number }}
+                                            {% else %}
+                                                <i data-lucide="package" class="h-3 w-3 inline"></i>
+                                                Takeout
+                                            {% endif %}
+                                            · Waiter: {{ order.waiter.username }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Status -->
+                                    <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
+                                        {% if order.status == 'ready' %}bg-green-100 text-green-800
+                                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </div>
+
+                                <!-- Order Items -->
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    {% for item in order.items.all|slice:":5" %}
+                                    <span class="inline-flex items-center gap-1 text-xs text-gray-600 bg-gray-50 rounded px-2 py-1">
+                                        <i data-lucide="circle" class="h-2 w-2"></i>
+                                        {{ item.quantity|floatformat:0 }}x {{ item.product.name }}
+                                    </span>
+                                    {% endfor %}
+                                    {% if order.items.count > 5 %}
+                                    <span class="text-xs text-gray-500">+{{ order.items.count|add:"-5" }} more</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Amount & Action -->
+                            <div class="flex items-center gap-6">
+                                <div class="text-right">
+                                    <p class="text-2xl font-bold text-gray-900">
+                                        {{ order.total_amount|floatformat:0 }}
+                                    </p>
+                                    <p class="text-xs text-gray-500">FCFA</p>
+                                </div>
+
+                                <a href="{% url 'core:cashier_process_payment' order.id %}" class="inline-flex items-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 shadow-sm">
+                                    <i data-lucide="credit-card" class="h-5 w-5"></i>
+                                    Process Payment
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Time info -->
+                        <div class="mt-2 text-xs text-gray-500">
+                            <i data-lucide="clock" class="h-3 w-3 inline"></i>
+                            Created {{ order.created_at|timesince }} ago
+                        </div>
+                    </div>
+                </li>
+                {% endwith %}
+                {% endfor %}
+            </ul>
+            {% else %}
+            <div class="px-4 py-12 text-center">
+                <i data-lucide="check-circle" class="mx-auto h-12 w-12 text-green-500"></i>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">All caught up!</h3>
+                <p class="mt-1 text-sm text-gray-500">No orders pending payment at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Auto-refresh indicator -->
+<div class="fixed bottom-4 right-4 bg-white rounded-full shadow-lg px-4 py-2 flex items-center gap-2 text-sm text-gray-600">
+    <div class="animate-pulse h-2 w-2 rounded-full bg-green-500"></div>
+    <span>Auto-refresh: <span id="countdown">10</span>s</span>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh every 10 seconds
+    let countdown = 10;
+    const countdownEl = document.getElementById('countdown');
+    
+    setInterval(() => {
+        countdown--;
+        if (countdownEl) {
+            countdownEl.textContent = countdown;
+        }
+        
+        if (countdown <= 0) {
+            location.reload();
+        }
+    }, 1000);
+
+    // Initialize icons
+    lucide.createIcons();
+
+    // Play notification sound when new orders appear (optional)
+    const orderCount = {{ pending_orders|length }};
+    const previousCount = localStorage.getItem('cashier_order_count') || 0;
+    
+    if (orderCount > previousCount) {
+        // New order detected - could play sound here
+        console.log('New order detected!');
+    }
+    
+    localStorage.setItem('cashier_order_count', orderCount);
+</script>
+{% endblock %}
