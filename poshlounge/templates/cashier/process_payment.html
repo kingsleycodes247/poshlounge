@@ -235,15 +235,11 @@
 <script>
     lucide.createIcons();
 
-    const totalRemaining = {{ remaining|floatformat:0 }};
+    // Get remaining amount as a number (remove any formatting)
+    const totalRemaining = parseFloat('{{ remaining|floatformat:2 }}'.replace(/,/g, '')) || 0;
     const amountInput = document.getElementById('amount');
     const transactionRefField = document.getElementById('transaction-ref-field');
     const paymentMethodRadios = document.querySelectorAll('input[name="payment_method"]');
-
-    // Format number input - only digits
-    amountInput.addEventListener('input', function() {
-        this.value = this.value.replace(/[^0-9]/g, '');
-    });
 
     // Show/hide transaction reference field based on payment method
     paymentMethodRadios.forEach(radio => {
@@ -260,17 +256,29 @@
 
     // Update payment preview
     amountInput.addEventListener('input', function() {
-        //const amount = Decimal(this.value) || 0;
-        const amount = Decimal(this.value || '0', 10);
-       // const amount = parseInt(amountInput.value || '0', 10);
+        // Get amount as a number, handle empty string
+        let amount = parseFloat(this.value) || 0;
+        
+        // Ensure it's not negative
+        if (amount < 0) {
+            amount = 0;
+            this.value = 0;
+        }
+        
+        // Ensure it doesn't exceed remaining
+        if (amount > totalRemaining) {
+            amount = totalRemaining;
+            this.value = Math.floor(totalRemaining);
+        }
+        
         const remaining = totalRemaining - amount;
         
-        document.getElementById('payment-amount-preview').textContent = amount.toFixed(0) + ' FCFA';
-        document.getElementById('remaining-preview').textContent = Math.max(0, remaining).toFixed(0) + ' FCFA';
+        document.getElementById('payment-amount-preview').textContent = Math.floor(amount) + ' FCFA';
+        document.getElementById('remaining-preview').textContent = Math.max(0, Math.floor(remaining)) + ' FCFA';
     });
 
     function setAmount(amount) {
-        amountInput.value = amount;
+        amountInput.value = Math.floor(amount);
         amountInput.dispatchEvent(new Event('input'));
     }
 
@@ -278,25 +286,37 @@
     document.querySelector('form').addEventListener('submit', function(e) {
         const amount = parseFloat(amountInput.value) || 0;
         
+        console.log('Form submit - Amount:', amount, 'Type:', typeof amount);
+        console.log('Total Remaining:', totalRemaining);
+        
         if (amount <= 0) {
             e.preventDefault();
-            alert('Please enter a valid amount');
+            alert('Please enter a valid amount greater than 0');
             return;
         }
         
         if (amount > totalRemaining) {
             e.preventDefault();
-            alert('Amount cannot exceed remaining balance');
+            alert('Amount cannot exceed remaining balance of ' + Math.floor(totalRemaining) + ' FCFA');
             return;
         }
 
         // Confirm payment
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        const methodName = paymentMethod.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked');
+        if (!paymentMethod) {
+            e.preventDefault();
+            alert('Please select a payment method');
+            return;
+        }
         
-        if (!confirm(`Process ${amount.toFixed(0)} FCFA payment via ${methodName}?`)) {
+        const methodName = paymentMethod.value.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+        
+        if (!confirm(`Process ${Math.floor(amount)} FCFA payment via ${methodName}?`)) {
             e.preventDefault();
         }
     });
+    
+    // Initialize preview on page load
+    amountInput.dispatchEvent(new Event('input'));
 </script>
 {% endblock %}

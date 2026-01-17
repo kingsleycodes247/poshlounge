@@ -327,8 +327,8 @@ class Payment(models.Model):
         return f"Payment #{self.payment_number} - {self.amount}"
     
     def save(self, *args, **kwargs):
-        # Prevent any updates (immutable)
-        if self.pk:
+        # Prevent any updates (but allow initial creation)
+        if self.pk and self._state.adding is False:
             raise ValueError("Payment records cannot be modified after creation")
         
         if not self.payment_number:

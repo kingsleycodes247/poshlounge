@@ -58,12 +58,12 @@ def admin_dashboard(request):
     low_stock_products = Product.objects.filter(
         is_active=True,
         stock_quantity__lte=F('min_stock_level')
-    ).order_by('stock_quantity')[:10]
+    ).order_by('stock_quantity')[:5]
     
     # Recent payments
     recent_payments = Payment.objects.select_related(
         'order', 'processed_by'
-    ).order_by('-processed_at')[:10]
+    ).order_by('-processed_at')[:5]
     
     # Payment method breakdown (today)
     payment_breakdown = Payment.objects.filter(
@@ -80,7 +80,7 @@ def admin_dashboard(request):
     ).values('product__name').annotate(
         quantity_sold=Sum('quantity'),
         revenue=Sum(F('quantity') * F('unit_price'))
-    ).order_by('-quantity_sold')[:10]
+    ).order_by('-quantity_sold')[:5]
     
     context = {
         'today_orders': today_orders.count(),
@@ -104,23 +104,36 @@ def admin_dashboard(request):
 
 @login_required
 def product_list(request):
-    """List all products with filtering options"""
+    """List all products with filtering and search options"""
     if request.user.role != 'admin':
         messages.error(request, 'Access denied')
         return redirect('core:dashboard_router')
     
     products = Product.objects.select_related('category').all()
     
-    # Filtering
+    # Search functionality
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        from django.db.models import Q
+        products = products.filter(
+            Q(name__icontains=search_query) |
+            Q(sku__icontains=search_query) |
+            Q(description__icontains=search_query)
+        )
+    
+    # Category filtering
     category_id = request.GET.get('category')
     if category_id:
         products = products.filter(category_id=category_id)
     
+    # Status filtering
     status = request.GET.get('status')
-    if status == 'low_stock':
+    if status == 'available':
+        products = products.filter(is_active=True, is_available=True)
+    elif status == 'unavailable':
+        products = products.filter(is_available=False)
+    elif status == 'low_stock':
         products = products.filter(stock_quantity__lte=F('min_stock_level'))
-    elif status == 'out_of_stock':
-        products = products.filter(stock_quantity=0)
     
     categories = Category.objects.all()
     

@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-f#5t1h-fs8(e!st!sp*3#j3gs7gmu5$ce*6926xjugbm&(-iqq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'poshlounge.net', 'www.poshlounge.net']
 
 
 # Application definition
@@ -82,6 +82,7 @@ WSGI_APPLICATION = 'poshlounge.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+"""
 DATABASES = {
     'default': {
          "ENGINE": "django.db.backends.postgresql",
@@ -90,6 +91,13 @@ DATABASES = {
         "PASSWORD": "postgres1999",
         "HOST": "localhost",
         "PORT": "5432",
+    }
+}
+"""
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.poshlounge_db.sqlite3'
     }
 }
 

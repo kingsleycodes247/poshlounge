@@ -2,6 +2,7 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.core.cache import cache
 from django.conf import settings
+from django.utils import timezone
 from decimal import Decimal
 from core.models import (
     OrderItem, Order, Payment, Product, 
@@ -103,33 +104,58 @@ def calculate_order_totals_on_item_save(sender, instance, created, **kwargs):
 def notify_kitchen_on_order_item(sender, instance, created, **kwargs):
     """
     Notify kitchen display when new item is ordered.
+    Auto-confirm items that don't require kitchen preparation.
     Uses cache for real-time updates.
     """
-    if created and instance.product.requires_kitchen:
-        # Store in cache for kitchen display to poll
-        cache_key = f'kitchen_orders_{instance.order.id}'
-        kitchen_items = cache.get(cache_key, [])
+    if created:
+        # Auto-confirm items that don't require kitchen (e.g., drinks)
+        if not instance.product.requires_kitchen:
+            instance.is_confirmed = True
+            instance.confirmed_at = timezone.now()
+            # Use update to avoid triggering signals again
+            OrderItem.objects.filter(pk=instance.pk).update(
+                is_confirmed=True,
+                confirmed_at=timezone.now()
+            )
+            logger.info(f"Auto-confirmed non-kitchen item: {instance.product.name}")
+            
+            # Check if all items are ready
+            order = instance.order
+            all_confirmed = not order.items.filter(
+                is_confirmed=False,
+                product__requires_kitchen=True
+            ).exists()
+            
+            if all_confirmed and order.status == 'preparing':
+                order.status = 'ready'
+                order.save(update_fields=['status'])
+                logger.info(f"Order {order.order_number} auto-marked as ready")
         
-        kitchen_items.append({
-            'id': str(instance.id),
-            'product_name': instance.product.name,
-            'quantity': float(instance.quantity),
-            'special_instructions': instance.special_instructions,
-            'table': instance.order.table.number if instance.order.table else 'Takeout',
-            'order_number': instance.order.order_number,
-            'created_at': instance.created_at.isoformat(),
-        })
-        
-        # Store for 24 hours
-        cache.set(cache_key, kitchen_items, 86400)
-        
-        # Also set a flag for new orders
-        cache.set('kitchen_new_orders', True, 60)
-        
-        logger.info(
-            f"Kitchen notified: {instance.product.name} x{instance.quantity} "
-            f"for Order #{instance.order.order_number}"
-        )
+        elif instance.product.requires_kitchen:
+            # Store in cache for kitchen display to poll
+            cache_key = f'kitchen_orders_{instance.order.id}'
+            kitchen_items = cache.get(cache_key, [])
+            
+            kitchen_items.append({
+                'id': str(instance.id),
+                'product_name': instance.product.name,
+                'quantity': float(instance.quantity),
+                'special_instructions': instance.special_instructions,
+                'table': instance.order.table.number if instance.order.table else 'Takeout',
+                'order_number': instance.order.order_number,
+                'created_at': instance.created_at.isoformat(),
+            })
+            
+            # Store for 24 hours
+            cache.set(cache_key, kitchen_items, 86400)
+            
+            # Also set a flag for new orders
+            cache.set('kitchen_new_orders', True, 60)
+            
+            logger.info(
+                f"Kitchen notified: {instance.product.name} x{instance.quantity} "
+                f"for Order #{instance.order.order_number}"
+            )
 
 
 # ============================================================================

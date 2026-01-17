@@ -7,7 +7,8 @@ from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.utils import timezone
 from django.core.cache import cache
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
+
 
 from core.models import (
     User, Order, OrderItem, Product, Table, Category,
@@ -224,6 +225,51 @@ def waiter_add_items(request, order_id):
         return redirect('core:waiter_dashboard')
     
     if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        # Handle item deletion
+        if action == 'delete_item':
+            item_id = request.POST.get('item_id')
+            try:
+                item = OrderItem.objects.get(id=item_id, order=order)
+                if item.is_confirmed:
+                    messages.error(request, 'Cannot delete confirmed items')
+                else:
+                    product_name = item.product.name
+                    # Return stock before deleting
+                    product = item.product
+                    product.stock_quantity += item.quantity
+                    product.save(update_fields=['stock_quantity'])
+                    
+                    # Delete the item
+                    item.delete()
+                    
+                    # Recalculate order totals
+                    order.refresh_from_db()
+                    all_items = order.items.all()
+                    if all_items.exists():
+                        subtotal = sum(i.subtotal for i in all_items)
+                        tax = subtotal * Decimal('0.0')
+                        total = subtotal + tax
+                        Order.objects.filter(pk=order.pk).update(
+                            subtotal=subtotal,
+                            tax_amount=tax,
+                            total_amount=total
+                        )
+                    else:
+                        Order.objects.filter(pk=order.pk).update(
+                            subtotal=0,
+                            tax_amount=0,
+                            total_amount=0
+                        )
+                    
+                    messages.success(request, f'Removed {product_name} from order')
+                return redirect('core:waiter_add_items', order_id=order.id)
+            except OrderItem.DoesNotExist:
+                messages.error(request, 'Item not found')
+                return redirect('core:waiter_add_items', order_id=order.id)
+        
+        # Handle adding items
         product_id = request.POST.get('product_id')
         quantity = request.POST.get('quantity', 1)
         special_instructions = request.POST.get('special_instructions', '')
@@ -313,6 +359,7 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
 
 
 # ============================================================================
@@ -560,14 +607,35 @@ def cashier_process_payment(request, order_id):
     
     if request.method == 'POST':
         payment_method = request.POST.get('payment_method')
-        amount = request.POST.get('amount')
+        amount_str = request.POST.get('amount', '')
         transaction_ref = request.POST.get('transaction_reference', '')
         
+        # Debug logging
+        logger.info(f"Payment request - Method: {payment_method}, Amount string: '{amount_str}', Ref: {transaction_ref}")
+        
         try:
-            amount = Decimal(str(amount))
+            # Clean the amount string - remove spaces, commas
+            amount_str = amount_str.strip().replace(',', '').replace(' ', '')
             
+            # Check if amount is empty
+            if not amount_str:
+                messages.error(request, 'Amount cannot be empty')
+                return redirect('core:cashier_process_payment', order_id=order.id)
+            
+            # Convert to Decimal
+            try:
+                amount = Decimal(amount_str)
+            except (ValueError, InvalidOperation) as e:
+                logger.error(f"Invalid amount format: '{amount_str}' - Error: {str(e)}")
+                messages.error(request, f'Invalid amount format: {amount_str}')
+                return redirect('core:cashier_process_payment', order_id=order.id)
+            
+            logger.info(f"Converted amount: {amount} (type: {type(amount)})")
+            
+            # Validate amount
             if amount <= 0:
-                messages.error(request, 'Invalid payment amount')
+                logger.warning(f"Amount is zero or negative: {amount}")
+                messages.error(request, f'Amount must be greater than 0 (received: {amount})')
                 return redirect('core:cashier_process_payment', order_id=order.id)
             
             # Validate payment method
@@ -585,7 +653,10 @@ def cashier_process_payment(request, order_id):
             total_paid = sum(p.amount for p in order.payments.all())
             remaining = order.total_amount - total_paid
             
+            logger.info(f"Order total: {order.total_amount}, Paid: {total_paid}, Remaining: {remaining}")
+            
             if amount > remaining:
+                logger.warning(f"Amount {amount} exceeds remaining {remaining}, capping to remaining")
                 amount = remaining  # Don't overpay
             
             # Create payment record
@@ -597,26 +668,26 @@ def cashier_process_payment(request, order_id):
                 processed_by=request.user,
                 device_id=request.session.get('device_id', '')
             )
+
+            logger.info(f"Payment created successfully: {payment.payment_number}")
             
             messages.success(
                 request,
                 f'Payment of {amount} FCFA processed successfully via {payment.get_payment_method_display()}'
             )
-            
-            # Trigger receipt printing (handled via signal/cache)
-            # The frontend will poll for this
-            
+     
             return redirect('core:cashier_dashboard')
+        
             
-        except ValueError:
-            messages.error(request, 'Invalid paaddy payment amount')
         except Exception as e:
-            logger.error(f"Payment processing error: {str(e)}")
-            messages.error(request, 'Payment processing failed')
+            logger.error(f"Payment processing error: {type(e).__name__}: {str(e)}")
+            messages.error(request, f'Payment processing failed: {str(e)}')
     
     # Calculate order summary
     total_paid = sum(p.amount for p in order.payments.all())
     remaining = order.total_amount - total_paid
+    
+    logger.info(f"Rendering payment form - Order: {order.order_number}, Remaining: {remaining}")
     
     context = {
         'order': order,
@@ -626,7 +697,7 @@ def cashier_process_payment(request, order_id):
     
     return render(request, 'cashier/process_payment.html', context)
 
-
+    
 # ============================================================================
 # KITCHEN VIEWS - Order Display & Confirmation
 # ============================================================================
@@ -889,7 +960,7 @@ def api_print_receipt(request, payment_id):
         # Build receipt data
         receipt_data = {
             'business_name': 'POSH LOUNGE',
-            'address': 'Douala, Cameroon',
+            'address': 'New Deido, Douala',
             'tax_id': 'TIN: XXXXXXXXX',
             'receipt_number': payment.payment_number,
             'order_number': payment.order.order_number,

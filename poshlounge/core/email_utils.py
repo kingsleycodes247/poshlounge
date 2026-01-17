@@ -6,7 +6,7 @@ from decimal import Decimal
 from datetime import datetime, timedelta
 import logging
 
-from poshlounge.core import models
+from django.db import models
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ Status: {'OUT OF STOCK' if product.stock_quantity == 0 else 'LOW STOCK'}
     message += f"""
 Please restock these items as soon as possible.
 
-View full details: https://www.poshlounge.com/dashboard/inventory/alerts/
+View full details: https://www.poshlounge.net/dashboard/inventory/alerts/
 
 Sent automatically by Posh Lounge POS
 {datetime.now().strftime('%Y-%m-%d %H:%M')}
@@ -104,7 +104,7 @@ Orange Money: {orange_total:,.0f} FCFA ({(orange_total / total_revenue * 100 if 
 
 ═══════════════════════════════════
 
-View detailed report: https://www.poshlounge.com/dashboard/reports/sales/
+View detailed report: https://www.poshlounge.net/dashboard/reports/sales/
 
 Sent automatically by Posh Lounge POS
 {datetime.now().strftime('%Y-%m-%d %H:%M')}
