@@ -1,53 +1,54 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Posh Lounge POS{% endblock %}</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
+
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+
+
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    
+
     <style>
         /* Custom animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .animate-fadeIn {
             animation: fadeIn 0.3s ease-out;
         }
-        
+
         /* Print styles */
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; }
         }
-        
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-        
+
         ::-webkit-scrollbar-track {
             background: #f1f1f1;
         }
-        
+
         ::-webkit-scrollbar-thumb {
             background: #888;
             border-radius: 4px;
         }
-        
+
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
     </style>
-    
+
     {% block extra_css %}{% endblock %}
 </head>
 <body class="h-full">
@@ -68,17 +69,17 @@
                                 <p class="text-xs text-indigo-200">{% block page_subtitle %}POS System{% endblock %}</p>
                             </div>
                         </a>
-                        
+
                         <!-- Back Button (optional, shown on sub-pages) -->
                         {% block back_button %}{% endblock %}
                     </div>
-                    
+
                     <div class="flex items-center gap-4">
                         <!-- Clock -->
                         <div class="text-white text-sm">
                             <span id="current-time"></span>
                         </div>
-                        
+
                         <!-- User menu -->
                         <div class="flex items-center gap-3 text-white">
                             <div class="text-right">
@@ -95,7 +96,7 @@
             </div>
         </nav>
         {% endif %}
-        
+
         <!-- Flash messages -->
         {% if messages %}
         <div class="fixed top-20 right-4 z-50 space-y-2 no-print" id="messages-container">
@@ -114,44 +115,44 @@
             {% endfor %}
         </div>
         {% endif %}
-        
+
         <!-- Main content -->
         <main>
             {% block content %}{% endblock %}
         </main>
     </div>
-    
+
     <!-- Initialize Lucide icons -->
     <script>
         // Initialize all Lucide icons
         lucide.createIcons();
-        
+
         // Update clock every second
         function updateClock() {
             const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
+            const timeStr = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
                 minute: '2-digit',
                 second: '2-digit',
-                hour12: false 
+                hour12: false
             });
-            const dateStr = now.toLocaleDateString('en-US', { 
-                weekday: 'short', 
-                year: 'numeric', 
-                month: 'short', 
-                day: 'numeric' 
+            const dateStr = now.toLocaleDateString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
             });
-            
+
             const clockElement = document.getElementById('current-time');
             if (clockElement) {
                 clockElement.innerHTML = `${timeStr}<br><span class="text-xs text-indigo-200">${dateStr}</span>`;
             }
         }
-        
+
         // Update immediately and then every second
         updateClock();
         setInterval(updateClock, 1000);
-        
+
         // Auto-dismiss messages after 5 seconds
         setTimeout(() => {
             const container = document.getElementById('messages-container');
@@ -159,14 +160,14 @@
                 container.remove();
             }
         }, 5000);
-        
+
         // Prevent accidental page navigation
         let formSubmitted = false;
-        
+
         document.addEventListener('submit', () => {
             formSubmitted = true;
         });
-        
+
         window.addEventListener('beforeunload', (e) => {
             if (!formSubmitted && document.querySelector('form')) {
                 e.preventDefault();
@@ -174,7 +175,7 @@
             }
         });
     </script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

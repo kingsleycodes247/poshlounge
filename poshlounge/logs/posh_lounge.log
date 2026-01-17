@@ -10278,3 +10278,215 @@ INFO 2026-01-17 11:05:33,156 basehttp "GET /kitchen/ HTTP/1.1" 302 0
 INFO 2026-01-17 11:05:33,175 basehttp "GET /login/?next=/kitchen/ HTTP/1.1" 200 9734
 INFO 2026-01-17 11:07:24,179 basehttp "GET /cashier/ HTTP/1.1" 302 0
 INFO 2026-01-17 11:07:24,193 basehttp "GET /login/?next=/cashier/ HTTP/1.1" 200 9734
+INFO 2026-01-17 17:12:04,268 autoreload Watching for file changes with StatReloader
+INFO 2026-01-17 17:18:45,996 autoreload C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\shortcuts.py changed, reloading.
+INFO 2026-01-17 18:30:33,886 autoreload Watching for file changes with StatReloader
+INFO 2026-01-17 18:31:39,096 log "GET / HTTP/1.1" 302 0
+INFO 2026-01-17 18:31:39,151 log "GET /login/?next=/ HTTP/1.1" 200 9739
+INFO 2026-01-17 18:31:39,689 log "GET /static/css/tailwind.css HTTP/1.1" 200 35237
+INFO 2026-01-17 18:31:54,254 log "POST /login/ HTTP/1.1" 200 10295
+INFO 2026-01-17 18:32:07,862 log "POST /login/ HTTP/1.1" 200 10295
+WARNING 2026-01-17 18:32:10,853 log Not Found: /favicon.ico
+WARNING 2026-01-17 18:32:10,855 log "GET /favicon.ico HTTP/1.1" 404 7967
+INFO 2026-01-17 18:32:15,712 log "POST /login/ HTTP/1.1" 200 10300
+INFO 2026-01-17 18:32:37,122 log "POST /login/ HTTP/1.1" 200 10295
+INFO 2026-01-17 18:32:37,179 log "GET /static/css/tailwind.css HTTP/1.1" 304 0
+INFO 2026-01-17 18:32:51,556 log "POST /login/ HTTP/1.1" 200 10295
+WARNING 2026-01-17 18:33:01,379 log Not Found: /login/admin
+WARNING 2026-01-17 18:33:01,395 log "GET /login/admin HTTP/1.1" 404 7967
+INFO 2026-01-17 18:33:07,812 log "POST /login/ HTTP/1.1" 200 10295
+INFO 2026-01-17 18:35:16,088 log "POST /login/ HTTP/1.1" 200 10300
+INFO 2026-01-17 18:35:16,138 log "GET /static/css/tailwind.css HTTP/1.1" 304 0
+INFO 2026-01-17 18:35:32,226 log "POST /login/ HTTP/1.1" 200 10295
+INFO 2026-01-17 18:35:46,468 log "GET /admin/ HTTP/1.1" 302 0
+INFO 2026-01-17 18:35:47,737 log "GET /admin/login/?next=/admin/ HTTP/1.1" 200 4083
+INFO 2026-01-17 18:35:47,907 log "GET /static/admin/css/base.css HTTP/1.1" 200 23100
+INFO 2026-01-17 18:35:47,909 log "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 3538
+INFO 2026-01-17 18:35:48,022 log "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+INFO 2026-01-17 18:35:48,034 log "GET /static/admin/css/login.css HTTP/1.1" 200 951
+INFO 2026-01-17 18:35:48,180 log "GET /static/admin/js/theme.js HTTP/1.1" 200 1653
+INFO 2026-01-17 18:35:48,250 log "GET /static/admin/css/responsive.css HTTP/1.1" 200 16273
+INFO 2026-01-17 18:35:48,361 log "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+INFO 2026-01-17 18:36:02,003 log "POST /admin/login/?next=/admin/ HTTP/1.1" 302 0
+INFO 2026-01-17 18:36:02,224 log "GET /admin/ HTTP/1.1" 200 12359
+INFO 2026-01-17 18:36:02,357 log "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 593
+INFO 2026-01-17 18:36:02,358 log "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+INFO 2026-01-17 18:36:02,359 log "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 978
+INFO 2026-01-17 18:36:12,613 log "GET /admin/core/user/ HTTP/1.1" 200 15651
+INFO 2026-01-17 18:36:12,894 log "GET /static/admin/css/changelists.css HTTP/1.1" 200 7501
+INFO 2026-01-17 18:36:12,897 log "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+INFO 2026-01-17 18:36:12,912 log "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9777
+INFO 2026-01-17 18:36:12,916 log "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+INFO 2026-01-17 18:36:12,944 log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-17 18:36:13,122 log "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+INFO 2026-01-17 18:36:13,299 log "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+INFO 2026-01-17 18:36:13,387 log "GET /static/admin/js/actions.js HTTP/1.1" 200 8076
+INFO 2026-01-17 18:36:13,576 log "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+INFO 2026-01-17 18:36:13,995 log "GET /static/admin/img/search.svg HTTP/1.1" 200 607
+INFO 2026-01-17 18:36:14,097 log "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 558
+INFO 2026-01-17 18:36:14,172 log "GET /static/admin/img/icon-no.svg HTTP/1.1" 200 645
+INFO 2026-01-17 18:36:14,179 log "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+INFO 2026-01-17 18:36:14,272 log "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+INFO 2026-01-17 18:36:14,362 log "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 928
+INFO 2026-01-17 18:36:14,364 log "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 593
+INFO 2026-01-17 18:36:17,841 log "GET /admin/core/user/1/change/ HTTP/1.1" 200 31503
+INFO 2026-01-17 18:36:17,970 log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-17 18:36:17,992 log "GET /static/admin/css/forms.css HTTP/1.1" 200 8788
+INFO 2026-01-17 18:36:18,044 log "GET /static/admin/js/calendar.js HTTP/1.1" 200 9159
+INFO 2026-01-17 18:36:18,047 log "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19698
+INFO 2026-01-17 18:36:18,111 log "GET /static/admin/css/widgets.css HTTP/1.1" 200 11811
+INFO 2026-01-17 18:36:18,361 log "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+INFO 2026-01-17 18:36:18,362 log "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+INFO 2026-01-17 18:36:18,479 log "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 805
+INFO 2026-01-17 18:36:18,483 log "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1112
+INFO 2026-01-17 18:36:47,738 log "POST /admin/core/user/1/change/ HTTP/1.1" 302 0
+INFO 2026-01-17 18:36:47,823 log "GET /admin/core/user/ HTTP/1.1" 200 15885
+INFO 2026-01-17 18:36:47,937 log "GET /admin/jsi18n/ HTTP/1.1" 200 3342
+INFO 2026-01-17 18:36:48,084 log "GET /static/admin/img/icon-yes-dark.svg HTTP/1.1" 200 558
+WARNING 2026-01-17 18:37:29,290 log Forbidden (CSRF token from POST incorrect.): /login/
+WARNING 2026-01-17 18:37:29,349 log "POST /login/ HTTP/1.1" 403 2503
+INFO 2026-01-17 18:37:49,696 log "GET /dashboard HTTP/1.1" 301 0
+ERROR 2026-01-17 18:37:53,080 log Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\dashboard\views.py", line 98, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 186, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 157, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 199, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 586, in parse
+    self.extend_nodelist(nodelist, compiled_result, token)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 607, in extend_nodelist
+    raise self.error(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Template: C:\Users\XPS\Desktop\poshlounge\poshlounge\templates\admin\dashboard.html, {% extends 'base.html' %} must be the first tag in 'admin/dashboard.html'.
+ERROR 2026-01-17 18:37:53,327 log "GET /dashboard/ HTTP/1.1" 500 160447
+INFO 2026-01-17 18:38:06,227 log "GET / HTTP/1.1" 302 0
+ERROR 2026-01-17 18:38:06,598 log Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\dashboard\views.py", line 98, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 186, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 157, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 199, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 586, in parse
+    self.extend_nodelist(nodelist, compiled_result, token)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 607, in extend_nodelist
+    raise self.error(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Template: C:\Users\XPS\Desktop\poshlounge\poshlounge\templates\admin\dashboard.html, {% extends 'base.html' %} must be the first tag in 'admin/dashboard.html'.
+ERROR 2026-01-17 18:38:06,642 log "GET /dashboard/ HTTP/1.1" 500 160447
+INFO 2026-01-17 18:38:15,403 log "GET / HTTP/1.1" 302 0
+ERROR 2026-01-17 18:38:15,856 log Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\core\handlers\base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\dashboard\views.py", line 98, in admin_dashboard
+    return render(request, 'admin/dashboard.html', context)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\backends\django.py", line 79, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 186, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 157, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 199, in compile_nodelist
+    nodelist = parser.parse()
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 586, in parse
+    self.extend_nodelist(nodelist, compiled_result, token)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\XPS\Desktop\poshlounge\poshlounge\venv\Lib\site-packages\django\template\base.py", line 607, in extend_nodelist
+    raise self.error(
+    ...<2 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Template: C:\Users\XPS\Desktop\poshlounge\poshlounge\templates\admin\dashboard.html, {% extends 'base.html' %} must be the first tag in 'admin/dashboard.html'.
+ERROR 2026-01-17 18:38:15,920 log "GET /dashboard/ HTTP/1.1" 500 160447
+INFO 2026-01-17 18:48:45,353 autoreload Watching for file changes with StatReloader
